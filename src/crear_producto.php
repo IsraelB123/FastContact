@@ -21,29 +21,28 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $stock = (int)$_POST['stock'];
     $sku = trim($_POST['sku']);
 
-    // 1. SQL con 8 columnas y 8 interrogaciones
-    $sql = "INSERT INTO provider_products (proveedor_id, nombre_producto, descripcion, categoria_id, precio_unitario, stock_disponible, sku_proveedor, activo) 
+    // 1. SQL ajustado a los nombres reales de TablePlus
+    $sql = "INSERT INTO provider_products (proveedor_id, nombre_producto, descripcion, categoria_producto, precio_unitario, stock_disponible, sku_proveedor, activo) 
             VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
     
     $stmt = $conn->prepare($sql);
 
     if (!$stmt) {
+        // Esto nos dirá si falló otra columna (ej. precio_unitario)
         die("Error en el prepare: " . $conn->error);
     }
 
-    // 2. Variables preparadas
     $activo = 1;
-    $categoria_temp_id = 1; 
+    // 2. Ahora enviamos el texto de la categoría (ej. 'Botanas')
+    // Usamos 's' para categoria_producto
+    $stmt->bind_param("isssdisi", $proveedorId, $nombre, $desc, $categoria, $precio, $stock, $sku, $activo);
 
-    // 3. Bind con 8 parámetros: i (id), s (nombre), s (desc), i (cat), d (precio), i (stock), s (sku), i (activo)
-    $stmt->bind_param("issdidis", $proveedorId, $nombre, $desc, $categoria_temp_id, $precio, $stock, $sku, $activo);
     if ($stmt->execute()) {
         header("Refresh: 2; url=gestionar_productos.php"); 
-        $mensaje = "¡Producto publicado! Redirigiendo...";
+        $mensaje = "¡Producto publicado con éxito! Redirigiendo...";
         $tipo = "success";
     } else {
-        // ESTO ES CLAVE: Si falla, detendrá todo y nos dirá por qué
-        die("ERROR CRÍTICO DE SQL: " . $conn->error);
+        die("ERROR AL EJECUTAR: " . $stmt->error);
     }
 }
 
