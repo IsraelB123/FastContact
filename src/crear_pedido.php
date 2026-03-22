@@ -4,10 +4,10 @@ session_start();
 require_once "config.php";
 
 // 2. Verificamos la sesión (esto ahora sí debería funcionar)
-//if (!isset($_SESSION['user_id']) || $_SESSION['user_rol'] !== 'cliente') {
-  //  header("Location: login.php");
- //   exit;
-//}
+if (!isset($_SESSION['user_id']) || $_SESSION['user_rol'] !== 'cliente') {
+    header("Location: login.php");
+    exit;
+}
 
 $clienteId = $_SESSION['user_id'];
 

@@ -8,10 +8,10 @@ $userId = $_SESSION['user_id'] ?? 0;
 $userName = $_SESSION['user_name'] ?? 'Cliente';
 
 // Verificar que haya sesión y que sea cliente
-//if (!isset($_SESSION['user_id']) || $_SESSION['user_rol'] !== 'cliente') {
-  //  header("Location: login.php");
-    //exit;
-//}
+if (!isset($_SESSION['user_id']) || $_SESSION['user_rol'] !== 'cliente') {
+    header("Location: login.php");
+    exit;
+}
 
 $userId   = (int)($_SESSION['user_id']);
 $userName = $_SESSION['user_name'] ?? 'Cliente';
