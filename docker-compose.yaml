@@ -27,8 +27,8 @@ services:
     depends_on:
       - db
     volumes:
-      # CAMBIO CLAVE: Apuntamos a la carpeta donde Jenkins descarga el código
-      - ./jenkins_home/workspace/FastContact-Pipeline:/var/www/html 
+      # AÑADIMOS /src AL FINAL DE LA RUTA DEL HOST
+      - ./jenkins_home/workspace/FastContact-Pipeline/src:/var/www/html 
     ports:
       - "8080:80"
     command: >
