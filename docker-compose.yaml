@@ -21,16 +21,16 @@ services:
 
   # Servidor Web y PHP
   app:
-    image: php:8.0-apache # Versión compatible con tu volcado
+    image: php:8.0-apache
     container_name: fc_app
     restart: always
     depends_on:
       - db
     volumes:
-      - ./src:/var/www/html # Aquí irá tu código PHP puro
+      # CAMBIO CLAVE: Apuntamos a la carpeta donde Jenkins descarga el código
+      - ./jenkins_home/workspace/FastContact-Pipeline:/var/www/html 
     ports:
       - "8080:80"
-    # Instalamos extensiones necesarias para que PHP hable con MariaDB
     command: >
       sh -c "docker-php-ext-install mysqli pdo pdo_mysql && apache2-foreground"
   jenkins:
