@@ -41,7 +41,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         die("ERROR CRÍTICO DE SQL: " . $conn->error);
     }
 }
-}
+
 ?>
 <!DOCTYPE html>
 <html lang="es">
