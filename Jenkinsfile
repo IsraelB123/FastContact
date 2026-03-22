@@ -20,7 +20,7 @@ pipeline {
             steps {
                 echo 'Reiniciando contenedores de FastContact...'
                 // Comando para refrescar la app y la DB
-                sh 'docker-compose down && docker-compose up -d'
+                sh 'docker compose down && docker compose up -d'
             }
         }
     }
