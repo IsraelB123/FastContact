@@ -4,59 +4,57 @@ require_once "config.php";
 
 $error = "";
 
-// Manejo de login
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $email = trim($_POST['email'] ?? '');
-    // CAMBIO 1: Usar el name correcto del HTML ("password")
     $password_ingresada = trim($_POST['password'] ?? ''); 
 
     if ($email === '' || $password_ingresada === '') {
         $error = "Por favor, ingresa tu correo y contraseña.";
     } else {
-        $stmt = $conn->prepare ("SELECT id, nombre, email, password_hash, rol, estado FROM users WHERE email = ?");
-        $stmt->bind_param ("s", $email);
+        $stmt = $conn->prepare("SELECT id, nombre, email, password_hash, rol, estado FROM users WHERE email = ?");
+        $stmt->bind_param("s", $email);
         $stmt->execute();
         $result = $stmt->get_result();
 
-        $row = $stmt->get_result();
-
-        if ($row) {
+        // AQUÍ ESTÁ EL CAMBIO CLAVE: fetch_assoc()
+        if ($row = $result->fetch_assoc()) {
             $password_valida = false;
-            //Validar con hash
-            if (password_verify ($password_ingresada, $row['password_hash'])){
+
+            // 1. Validar con BCrypt (Hash)
+            if (password_verify($password_ingresada, $row['password_hash'])) {
+                $password_valida = true;
+            } 
+            // 2. Validar Texto Plano (Para tu usuario admin@test.com)
+            elseif ($password_ingresada === $row['password_hash']) {
                 $password_valida = true;
             }
-            
-            //Validar texto plano (temporal)
-            elseif ($password_ingresada === $row['password_hash']){
-                $password_valida = true;
 
-            }
-
-            if($password_valida) {
+            if ($password_valida) {
                 if ($row['estado'] !== 'activo') {
                     $error = "Tu cuenta no se encuentra activa.";
                 } else {
-                    $_SESSION['user_id']  = $row['id'];
-                    $_SESSION['user_name']= $row['nombre'];
-                    $_SESSION['user_rol'] = $row['rol'];
+                    $_SESSION['user_id']   = $row['id'];
+                    $_SESSION['user_name'] = $row['nombre'];
+                    $_SESSION['user_rol']  = $row['rol'];
 
-                    $redirect = ($row['rol'] === 'proveedor')
-                        ? "panel_proveedor.php"
-                        : "panel_cliente.php";
+                    $redirect = ($row['rol'] === 'proveedor') ? "panel_proveedor.php" : "panel_cliente.php";
+                    
+                    // Si el rol es admin y no tienes panel_admin.php, te mandará al de cliente
+                    if ($row['rol'] === 'admin') $redirect = "panel_cliente.php"; 
+
                     header("Location: $redirect");
                     exit;
                 }
-            }else {
+            } else {
                 $error = "Contraseña incorrecta.";
             }
         } else {
-            $error = "No se encontro una cuenta con ese correo.";
+            // Esto te ayudará a saber si realmente encontró el correo
+            $error = "No se encontró una cuenta con el correo: " . htmlspecialchars($email);
         }
+        $stmt->close();
     }
 }
-
-$conn->close();
 ?>
 <!DOCTYPE html>
 <html lang="es">
