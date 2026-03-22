@@ -1,14 +1,13 @@
 <?php
-// config.php ajustado para Docker
-$host = "db";                 // "db" es el nombre del servicio en docker-compose
-$user = "user_fastcontact";   // Definido en MYSQL_USER
-$pass = "password_seguro";    // Definido en MYSQL_PASSWORD
-$dbname = "fc_database";      // Definido en MYSQL_DATABASE
+// En Docker, el "host" es el nombre del servicio en el docker-compose.yml
+$host = "db"; 
+$user = "user_fastcontact";
+$password = "password_seguro";
+$database = "fc_database";
 
-$conn = new mysqli($host, $user, $pass, $dbname);
+$conn = mysqli_connect($host, $user, $password, $database);
 
-if ($conn->connect_error) {
-    die("Error de conexión: " . $conn->connect_error);
+if (!$conn) {
+    die("Error de conexión: " . mysqli_connect_error());
 }
-$conn->set_charset("utf8mb4");
 ?>
