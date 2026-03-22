@@ -6,33 +6,28 @@ $tipo_mensaje = "";
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $nombre = trim($_POST['nombre'] ?? '');
     $email = trim($_POST['email'] ?? '');
-    $password = $_POST['password'] ?? '';
+    $password = $_POST['password'] ?? ''; 
     $empresa = trim($_POST['empresa'] ?? '');
 
-    $check = $conn->prepare("SELECT id FROM users WHERE email = ?");
+    // 1. Verificamos si ya existe una solicitud con ese email en la tabla de tránsito
+    $check = $conn->prepare("SELECT id FROM solicitudes_proveedores WHERE email = ?");
     $check->bind_param("s", $email);
     $check->execute();
+    
     if ($check->get_result()->num_rows > 0) {
-        $mensaje = "Este correo ya tiene una solicitud en proceso.";
+        $mensaje = "Ya tenemos una solicitud pendiente con este correo.";
         $tipo_mensaje = "error";
     } else {
-        $conn->begin_transaction();
-        try {
-            $stmt = $conn->prepare("INSERT INTO users (nombre, email, password_hash, rol, estado) VALUES (?, ?, ?, 'proveedor', 'pendiente')");
-            $stmt->bind_param("sss", $nombre, $email, $password); 
-            $stmt->execute();
-            $userId = $conn->insert_id;
-
-            $stmtProv = $conn->prepare("INSERT INTO provider_profiles (user_id, nombre_empresa, disponibilidad) VALUES (?, ?, 'no_disponible')");
-            $stmtProv->bind_param("is", $userId, $empresa);
-            $stmtProv->execute();
-
-            $conn->commit();
-            $mensaje = "¡Solicitud enviada! Revisaremos tus datos pronto.";
+        // 2. INSERT simple a la tabla de solicitudes_proveedores
+        $sql = "INSERT INTO solicitudes_proveedores (nombre_contacto, email, password_sugerida, nombre_empresa) VALUES (?, ?, ?, ?)";
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param("ssss", $nombre, $email, $password, $empresa);
+        
+        if ($stmt->execute()) {
+            $mensaje = "¡Solicitud enviada! Aparecerá en el Panel Admin para su aprobación.";
             $tipo_mensaje = "success";
-        } catch (Exception $e) {
-            $conn->rollback();
-            $mensaje = "Error: " . $e->getMessage();
+        } else {
+            $mensaje = "Error al enviar: " . $conn->error;
             $tipo_mensaje = "error";
         }
     }
