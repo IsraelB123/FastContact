@@ -27,8 +27,8 @@ services:
     depends_on:
       - db
     volumes:
-      # AÑADIMOS /src AL FINAL DE LA RUTA DEL HOST
-      - ./jenkins_home/workspace/FastContact-Pipeline/src:/var/www/html 
+      # Apuntamos a la carpeta 'src' dentro del workspace de Jenkins
+      - ./jenkins_home/workspace/FastContact-Pipeline/src:/var/www/html
     ports:
       - "8080:80"
     command: >
