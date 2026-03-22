@@ -78,13 +78,13 @@ $total_proveedores = $conn->query("SELECT COUNT(*) as total FROM users WHERE rol
             <?php endif; ?>
         </a>
 
-        <a href="#" class="menu-card">
+        <a href="lista_proveedores_admin.php" class="menu-card">
             <div class="icon">🏭</div>
             <div class="title">Proveedores Activos</div>
-            <div class="desc">Ver lista de empresas registradas (<?= $total_proveedores ?> actuales).</div>
+            <div class="desc">Ver lista de empresas registradas y gestionar su estado.</div>
         </a>
 
-        <a href="#" class="menu-card">
+        <a href="pedidos_globales_admin.php" class="menu-card">
             <div class="icon">📊</div>
             <div class="title">Historial de Pedidos</div>
             <div class="desc">Monitorear todas las transacciones entre clientes y proveedores.</div>
