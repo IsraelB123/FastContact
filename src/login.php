@@ -38,12 +38,14 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                     $_SESSION['user_name'] = $row['nombre'];
                     $_SESSION['user_rol']  = $row['rol'];
 
-                    $redirect = ($row['rol'] === 'proveedor') ? "panel_proveedor.php" : "panel_cliente.php";
-                    
-                    // Si el rol es admin y no tienes panel_admin.php, te mandará al de cliente
-                    if ($row['rol'] === 'admin') $redirect = "panel_cliente.php"; 
-
-                    header("Location: $redirect");
+                    // Ejemplo de lógica de redirección por rol
+                    if ($_SESSION['user_rol'] === 'admin') {
+                        header("Location: panel_admin.php");
+                    } elseif ($_SESSION['user_rol'] === 'proveedor') {
+                        header("Location: panel_proveedor.php");
+                    } else {
+                        header("Location: panel_cliente.php");
+                    }
                     exit;
                 }
             } else {

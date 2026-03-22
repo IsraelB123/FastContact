@@ -272,6 +272,34 @@ $conn->close();
 
     <section class="card">
         <h1>Bienvenido, <?php echo htmlspecialchars($nombreEmpresa); ?></h1>
+        <div class="acciones-rapidas" style="margin-bottom: 25px; display: flex; gap: 15px;">
+    
+            <a href="crear_producto.php" class="btn-accion" style="
+                background: #ff7f32; 
+                color: #1a1a1a; 
+                padding: 12px 20px; 
+                border-radius: 10px; 
+                text-decoration: none; 
+                font-weight: bold; 
+                display: flex; 
+                align-items: center; 
+                gap: 8px;
+                box-shadow: 0 4px 15px rgba(255, 127, 50, 0.3);">
+                <span>+</span> Añadir Nuevo Producto
+            </a>
+
+            <a href="gestionar_productos.php" class="btn-accion" style="
+                background: rgba(255, 255, 255, 0.1); 
+                color: #fff; 
+                padding: 12px 20px; 
+                border-radius: 10px; 
+                text-decoration: none; 
+                font-weight: 500; 
+                border: 1px solid rgba(255, 255, 255, 0.2);">
+                📦 Gestionar Mi Inventario
+            </a>
+    
+        </div>
         <p class="subtitle">
             Desde este panel podrás ver los pedidos que los clientes han realizado a tu empresa.
         </p>
