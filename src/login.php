@@ -265,8 +265,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
             <div class="extra-links">
                 ¿Eres nuevo en FastContact?<br>
-                <a href="#">Solicitar alta como cliente</a> ·
-                <a href="#">Registrar proveedor</a>
+                <a href="registro_cliente.php">Solicitar alta como cliente</a> · 
+                <a href="registro_proveedor.php">Registrar proveedor</a>
             </div>
         </div>
     </div>
