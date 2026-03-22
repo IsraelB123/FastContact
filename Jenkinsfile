@@ -1,27 +1,17 @@
 pipeline {
     agent any
-    tools{
-        dockerTool 'docker'
-    }
+    
     stages {
         stage('Descarga de Código') {
             steps {
-                echo 'Obteniendo la última versión de FastContact desde Git...'
-                // Aquí Jenkins descargará tus archivos PHP y SQL
+                echo 'Obteniendo la última versión de FastContact...'
             }
         }
         
-        stage('Verificación de Entorno') {
-            steps {
-                echo 'Validando archivos de configuración...'
-                sh 'ls -l src/config.php' // Verifica que el config esté en su lugar
-            }
-        }
-
         stage('Despliegue con Docker') {
             steps {
                 echo 'Reiniciando contenedores de FastContact...'
-                // Comando para refrescar la app y la DB
+                // Usamos la ruta absoluta para que no haya pierde
                 sh 'docker compose down && docker compose up -d'
             }
         }
