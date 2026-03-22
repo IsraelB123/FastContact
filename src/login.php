@@ -13,45 +13,46 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     if ($email === '' || $password_ingresada === '') {
         $error = "Por favor, ingresa tu correo y contraseña.";
     } else {
-        $stmt = $conn->prepare("SELECT id, nombre, email, password_hash, rol, estado FROM users WHERE email = ?");
-        $stmt->bind_param("s", $email);
+        $stmt = $conn->prepare ("SELECT id, nombre, email, password_hash, rol, estado FROM users WHERE email = ?");
+        $stmt->bind_param ("s", $email);
         $stmt->execute();
         $result = $stmt->get_result();
 
-// Cambia la comparación directa por esta validación inteligente
-if ($row) {
-    $password_valida = false;
+        $row = $stmt->get_result();
 
-    // 1. Intentar validar con BCrypt (Para el Cliente Demo)
-    if (password_verify($password, $row['password_hash'])) {
-        $password_valida = true;
-    } 
-    // 2. Intentar validar texto plano (Para tus proveedores actuales)
-    elseif ($password === $row['password_hash']) {
-        $password_valida = true;
-    }
-
-    if ($password_valida) {
-        if ($row['estado'] !== 'activo') {
-            $error = "Tu cuenta no se encuentra activa.";
-        } else {
-            // LOGIN EXITOSO
-            $_SESSION['user_id']   = $row['id'];
-            $_SESSION['user_name'] = $row['nombre'];
-            $_SESSION['user_rol']  = $row['rol'];
+        if ($row) {
+            $password_valida = false;
+            //Validar con hash
+            if (password_verify ($password_ingresada, $row['password_hash'])){
+                $password_valida = true;
+            }
             
-            $redirect = ($row['rol'] === 'proveedor') ? "panel_proveedor.php" : "panel_cliente.php";
-            header("Location: $redirect");
-            exit;
-        }
-    } else {
-        $error = "Contraseña incorrecta.";
-    }
-}
+            //Validar texto plano (temporal)
+            elseif ($password_ingresada === $row['password_hash']){
+                $password_valida = true;
+
+            }
+
+            if($password_valida) {
+                if ($row['estado'] !== 'activo') {
+                    $error = "Tu cuenta no se encuentra activa.";
+                } else {
+                    $_SESSION['user_id']  = $row['id'];
+                    $_SESSION['user_name']= $row['nombre'];
+                    $_SESSION['user_rol'] = $row['rol'];
+
+                    $redirect = ($row['rol'] === 'proveedor')
+                        ? "panel_proveedor.php"
+                        : "panel_cliente.php";
+                    header("Location: $redirect");
+                    exit;
+                }
+            }else {
+                $error = "Contraseña incorrecta.";
+            }
         } else {
-            $error = "No se encontró una cuenta con ese correo.";
+            $error = "No se encontro una cuenta con ese correo.";
         }
-        $stmt->close();
     }
 }
 
