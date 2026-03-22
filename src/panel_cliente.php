@@ -3,6 +3,10 @@ session_save_path('/tmp');
 session_start();
 require_once "config.php";
 
+// Esto evita que salga el error si la sesión se pierde un segundo
+$userId = $_SESSION['user_id'] ?? 0; 
+$userName = $_SESSION['user_name'] ?? 'Cliente';
+
 // Verificar que haya sesión y que sea cliente
 //if (!isset($_SESSION['user_id']) || $_SESSION['user_rol'] !== 'cliente') {
   //  header("Location: login.php");

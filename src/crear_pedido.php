@@ -1,8 +1,9 @@
 <?php
+session_save_path('/tmp');
 session_start();
 require_once "config.php";
 
-// Verificar sesión y rol
+// 2. Verificamos la sesión (esto ahora sí debería funcionar)
 if (!isset($_SESSION['user_id']) || $_SESSION['user_rol'] !== 'cliente') {
     header("Location: login.php");
     exit;
