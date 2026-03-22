@@ -15,7 +15,8 @@ $sql = "
         pp.tipo_proveedor,
         c.nombre AS categoria
     FROM provider_profiles pp
-    INNER JOIN users u ON pp.user_id = u.id
+    -- CAMBIAMOS INNER POR LEFT PARA QUE NO BLOQUEE SI NO HAY USUARIO
+    LEFT JOIN users u ON pp.user_id = u.id 
     LEFT JOIN categories c ON pp.categoria_id = c.id
 ";
 
