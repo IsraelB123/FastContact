@@ -1,6 +1,6 @@
 <?php
 // En Docker, el "host" es el nombre del servicio en el docker-compose.yml
-$host = "db"; 
+$host = "fc_db"; 
 $user = "user_fastcontact";
 $password = "password_seguro";
 $database = "fc_database";

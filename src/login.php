@@ -1,7 +1,15 @@
 <?php
 session_start();
 require_once "config.php";
+echo "HOST: " . $conn->host_info . "<br>";
 
+$stmt = $conn->prepare("SELECT COUNT(*) as total FROM users");
+$stmt->execute();
+$result = $stmt->get_result();
+$row = $result->fetch_assoc();
+
+echo "Usuarios en BD: " . $row['total'];
+die();
 $error = "";
 
 // Manejo de login
