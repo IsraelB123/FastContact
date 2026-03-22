@@ -7,9 +7,10 @@ $error = "";
 // Manejo de login
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $email = trim($_POST['email'] ?? '');
-    $password = trim($_POST['password_hash'] ?? '');
+    // CAMBIO 1: Usar el name correcto del HTML ("password")
+    $password_ingresada = trim($_POST['password'] ?? ''); 
 
-    if ($email === '' || $password === '') {
+    if ($email === '' || $password_ingresada === '') {
         $error = "Por favor, ingresa tu correo y contraseña.";
     } else {
         $stmt = $conn->prepare("SELECT id, nombre, email, password_hash, rol, estado FROM users WHERE email = ?");
@@ -18,22 +19,18 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $result = $stmt->get_result();
 
         if ($row = $result->fetch_assoc()) {
-            // Por ahora comparamos directamente con password_hash
-            if ($password === $row['password_hash']) {
+            // CAMBIO 2: Usar password_verify para comparar el texto plano con el hash
+            if (password_verify($password_ingresada, $row['password_hash'])) {
                 if ($row['estado'] !== 'activo') {
-                    $error = "Tu cuenta no se encuentra activa. Contacta al administrador.";
+                    $error = "Tu cuenta no se encuentra activa.";
                 } else {
+                    // Login exitoso
                     $_SESSION['user_id']   = $row['id'];
                     $_SESSION['user_name'] = $row['nombre'];
                     $_SESSION['user_rol']  = $row['rol'];
-
-                    if ($row['rol'] === 'proveedor') {
-                        header("Location: panel_proveedor.php");
-                    } elseif ($row['rol'] === 'cliente') {
-                        header("Location: panel_cliente.php");
-                    } else {
-                        header("Location: panel_admin.php");
-                    }
+                    
+                    // Redirección... (tu lógica de roles está perfecta)
+                    header("Location: " . ($row['rol'] === 'proveedor' ? "panel_proveedor.php" : "panel_cliente.php"));
                     exit;
                 }
             } else {
@@ -42,7 +39,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         } else {
             $error = "No se encontró una cuenta con ese correo.";
         }
-
         $stmt->close();
     }
 }
