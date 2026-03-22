@@ -9,11 +9,11 @@ pipeline {
         }
         
         stage('Despliegue con Docker') {
-            steps {
-                echo 'Reiniciando servicios de FastContact (App y DB)...'
-                // Solo recreamos 'db' y 'app' para que Jenkins siga vivo
-                sh 'docker-compose up -d --force-recreate db app'
-            }
-        }
+    steps {
+        echo 'Reiniciando servicios de FastContact (App y DB)...'
+        // Usamos /usr/bin/docker-compose para asegurar que lo encuentre
+        sh '/usr/bin/docker-compose up -d --force-recreate db app'
+    }
+}
     }
 }
