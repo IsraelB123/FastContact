@@ -11,8 +11,8 @@ pipeline {
         stage('Despliegue con Docker') {
             steps {
                 echo 'Reiniciando contenedores de FastContact...'
-                // Usamos la ruta absoluta para que no haya pierde
-                sh 'docker compose down && docker compose up -d'
+                // Cambiamos el espacio por un guion para usar el binario de docker-compose
+                sh 'docker-compose down && docker-compose up -d'
             }
         }
     }
