@@ -21,17 +21,22 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $stock = (int)$_POST['stock'];
     $sku = trim($_POST['sku']);
 
-    // INSERT ajustado a los nombres reales de TablePlus
+    // 1. SQL con 8 columnas y 8 interrogaciones
     $sql = "INSERT INTO provider_products (proveedor_id, nombre_producto, descripcion, categoria_id, precio_unitario, stock_disponible, sku_proveedor, activo) 
-            VALUES (?, ?, ?, ?, ?, ?, ?, 1)";
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
     
     $stmt = $conn->prepare($sql);
 
-    // OJO: Cambié la "s" de categoría por "i" porque en tu DB es un INT (ID de categoría)
-    // Usaremos '1' como ID de categoría temporal (Botanas) para probar
-    $categoria_temp_id = 1; 
-    $stmt->bind_param("issdidis", $proveedorId, $nombre, $desc, $categoria_temp_id, $precio, $stock, $sku);
+    if (!$stmt) {
+        die("Error en el prepare: " . $conn->error);
+    }
 
+    // 2. Variables preparadas
+    $activo = 1;
+    $categoria_temp_id = 1; 
+
+    // 3. Bind con 8 parámetros: i (id), s (nombre), s (desc), i (cat), d (precio), i (stock), s (sku), i (activo)
+    $stmt->bind_param("issdidis", $proveedorId, $nombre, $desc, $categoria_temp_id, $precio, $stock, $sku, $activo);
     if ($stmt->execute()) {
         header("Refresh: 2; url=gestionar_productos.php"); 
         $mensaje = "¡Producto publicado! Redirigiendo...";
