@@ -68,11 +68,16 @@ $result = $stmt->get_result();
                 <tr>
                     <td><strong><?= htmlspecialchars($row['nombre_producto']) ?></strong></td>
                     <td>$<?= number_format($row['precio_unitario'], 2) ?></td>
-                    <td><?= $row['stock_disponible'] ?></td>
-                    <td><?= htmlspecialchars($row['sku_proveedor']) ?></td>
                     <td>
-                        <a href="?eliminar_id=<?= $row['id'] ?>" class="btn-del" onclick="return confirm('¿Eliminar este producto?')">Eliminar</a>
+                        <span style="color: <?= ($row['stock_disponible'] < 10) ? '#ff5757' : '#8fef88' ?>; font-weight: bold;">
+                            <?= $row['stock_disponible'] ?> unidades
+                        </span>
                     </td>
+                    <td><code style="background: #444; padding: 2px 5px; border-radius: 4px;"><?= htmlspecialchars($row['sku_proveedor']) ?></code></td>
+                    <td>
+                        <a href="?eliminar_id=<?= $row['id'] ?>" class="btn-del" onclick="return confirm('¿Estás seguro de eliminar este producto del catálogo?')">🗑️ Eliminar</a>
+                    </td>
+                </tr>
                 </tr>
                 <?php endwhile; ?>
             </tbody>
