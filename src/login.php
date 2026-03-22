@@ -7,7 +7,7 @@ $error = "";
 // Manejo de login
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $email = trim($_POST['email'] ?? '');
-    $password = trim($_POST['password'] ?? '');
+    $password = trim($_POST['password_hash'] ?? '');
 
     if ($email === '' || $password === '') {
         $error = "Por favor, ingresa tu correo y contraseña.";
