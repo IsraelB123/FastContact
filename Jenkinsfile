@@ -9,11 +9,11 @@ pipeline {
         }
         stage('Despliegue con Docker') {
             steps {
-                echo 'Limpiando y reiniciando servicios de FastContact...'
-                // Primero bajamos los servicios específicos y luego los subimos
-                sh '/usr/bin/docker-compose stop db app'
-                sh '/usr/bin/docker-compose rm -f db app'
+                echo 'Desplegando FastContact y reparando permisos...'
                 sh '/usr/bin/docker-compose up -d --force-recreate db app'
+                // Esto arregla el Forbidden automáticamente
+                sh 'docker exec -u root fc_app chown -R www-data:www-data /var/www/html'
+                sh 'docker exec -u root fc_app chmod -R 755 /var/www/html'
             }
         }
     }
