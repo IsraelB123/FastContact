@@ -16,10 +16,12 @@ if (isset($_GET['activar_id'])) {
 }
 
 // CONSULTA SIMPLIFICADA (Para evitar el error de num_rows)
-$sql = "SELECT u.id, u.nombre, u.email, p.nombre_empresa 
+// Consulta mejorada con LEFT JOIN para ver usuarios aunque el perfil falle
+$sql = "SELECT u.id, u.nombre, u.email, 
+               IFNULL(p.nombre_empresa, 'PERFIL NO CREADO') as nombre_empresa
         FROM users u 
-        INNER JOIN provider_profiles p ON u.id = p.user_id 
-        WHERE u.estado = 'pendiente'";
+        LEFT JOIN provider_profiles p ON u.id = p.user_id 
+        WHERE u.estado = 'pendiente' AND u.rol = 'proveedor'";
 
 $result = $conn->query($sql);
 ?>
