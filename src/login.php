@@ -1,8 +1,5 @@
 <?php
-session_save_path('/tmp/sessions');
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
+session_save_path('/tmp');
 require_once "config.php";
 
 $error = "";
