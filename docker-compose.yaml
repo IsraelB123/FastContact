@@ -28,7 +28,7 @@ services:
       - db
     volumes:
       # Apuntamos a la carpeta 'src' dentro del workspace de Jenkins
-      - ./jenkins_home/workspace/FastContact-Pipeline/src:/var/www/html
+      - C:/Users/Israel/Desktop/fastcontact/jenkins_home/workspace/FastContact-Pipeline/src:/var/www/html
     ports:
       - "8080:80"
     command: >
