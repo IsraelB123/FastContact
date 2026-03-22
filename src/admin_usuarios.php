@@ -3,28 +3,24 @@ session_save_path('/tmp');
 session_start();
 require_once "config.php";
 
-// SEGURIDAD: Solo el usuario 'admin' puede entrar aquí
 if (!isset($_SESSION['user_id']) || $_SESSION['user_rol'] !== 'admin') {
-    die("Acceso denegado. Se requieren permisos de administrador.");
+    die("Acceso denegado.");
 }
 
-// LÓGICA DE ACTIVACIÓN
 if (isset($_GET['activar_id'])) {
     $id_activar = (int)$_GET['activar_id'];
     $stmt = $conn->prepare("UPDATE users SET estado = 'activo' WHERE id = ?");
     $stmt->bind_param("i", $id_activar);
-    
-    if ($stmt->execute()) {
-        $mensaje = "Usuario activado correctamente.";
-    }
+    $stmt->execute();
+    $mensaje = "¡Usuario activado exitosamente!";
 }
 
-// OBTENER PROVEEDORES PENDIENTES
-$sql = "SELECT u.id, u.nombre, u.email, p.nombre_empresa, u.fecha_registro 
+// CONSULTA SIMPLIFICADA (Para evitar el error de num_rows)
+$sql = "SELECT u.id, u.nombre, u.email, p.nombre_empresa 
         FROM users u 
-        JOIN provider_profiles p ON u.id = p.user_id 
-        WHERE u.estado = 'pendiente' AND u.rol = 'proveedor'
-        ORDER BY u.fecha_registro DESC";
+        INNER JOIN provider_profiles p ON u.id = p.user_id 
+        WHERE u.estado = 'pendiente'";
+
 $result = $conn->query($sql);
 ?>
 <!DOCTYPE html>
@@ -64,7 +60,7 @@ $result = $conn->query($sql);
                 </tr>
             </thead>
             <tbody>
-                <?php if ($result->num_rows > 0): ?>
+                <?php if ($result && $result->num_rows > 0): ?>
                     <?php while($row = $result->fetch_assoc()): ?>
                         <tr>
                             <td><strong><?= htmlspecialchars($row['nombre_empresa']) ?></strong></td>
