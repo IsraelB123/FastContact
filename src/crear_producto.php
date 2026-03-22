@@ -21,18 +21,25 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $stock = (int)$_POST['stock'];
     $sku = trim($_POST['sku']);
 
-    // INSERT en la tabla provider_products que vimos en TablePlus
-    $sql = "INSERT INTO provider_products (proveedor_id, nombre_producto, descripcion, categoria_producto, precio_unitario, stock_disponible, sku_proveedor, activo) 
+    // INSERT ajustado a los nombres reales de TablePlus
+    $sql = "INSERT INTO provider_products (proveedor_id, nombre_producto, descripcion, categoria_id, precio_unitario, stock_disponible, sku_proveedor, activo) 
             VALUES (?, ?, ?, ?, ?, ?, ?, 1)";
     
     $stmt = $conn->prepare($sql);
-    $stmt->bind_param("isssdis", $proveedorId, $nombre, $desc, $categoria, $precio, $stock, $sku);
+
+    // OJO: Cambié la "s" de categoría por "i" porque en tu DB es un INT (ID de categoría)
+    // Usaremos '1' como ID de categoría temporal (Botanas) para probar
+    $categoria_temp_id = 1; 
+    $stmt->bind_param("issdidis", $proveedorId, $nombre, $desc, $categoria_temp_id, $precio, $stock, $sku);
 
     if ($stmt->execute()) {
-    // Esperar 2 segundos y redirigir (o redirigir de inmediato)
-    header("Refresh: 2; url=gestionar_productos.php"); 
-    $mensaje = "¡Producto publicado con éxito! Redirigiendo al inventario...";
-    $tipo = "success";
+        header("Refresh: 2; url=gestionar_productos.php"); 
+        $mensaje = "¡Producto publicado! Redirigiendo...";
+        $tipo = "success";
+    } else {
+        // ESTO ES CLAVE: Si falla, detendrá todo y nos dirá por qué
+        die("ERROR CRÍTICO DE SQL: " . $conn->error);
+    }
 }
 }
 ?>
