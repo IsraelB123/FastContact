@@ -8,11 +8,15 @@ if (!isset($_SESSION['user_id']) || $_SESSION['user_rol'] !== 'admin') {
     die("Acceso denegado.");
 }
 
-// Consulta Maestra: Une Clientes, Pedidos y Proveedores
-$sql = "SELECT o.id, u.nombre as cliente, p.nombre_empresa as proveedor, 
-               o.total, o.estado, o.fecha_pedido
+// Consulta corregida
+$sql = "SELECT o.id, 
+               u.nombre as cliente, 
+               p.nombre_empresa as proveedor, 
+               o.total, 
+               o.estado, 
+               o.fecha_pedido
         FROM orders o
-        JOIN users u ON o.user_id = u.id
+        JOIN users u ON o.cliente_id = u.id
         JOIN provider_profiles p ON o.proveedor_id = p.user_id
         ORDER BY o.fecha_pedido DESC";
 $result = $conn->query($sql);

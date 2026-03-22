@@ -29,13 +29,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $stmt->bind_param("isssdis", $proveedorId, $nombre, $desc, $categoria, $precio, $stock, $sku);
 
     if ($stmt->execute()) {
-        $mensaje = "¡Producto publicado con éxito!";
-        $tipo = "success";
-    } else {
-        $mensaje = "Error al guardar: " . $conn->error;
-        $tipo = "error";
-    }
-    if ($stmt->execute()) {
     // Esperar 2 segundos y redirigir (o redirigir de inmediato)
     header("Refresh: 2; url=gestionar_productos.php"); 
     $mensaje = "¡Producto publicado con éxito! Redirigiendo al inventario...";
