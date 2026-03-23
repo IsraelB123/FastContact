@@ -21,25 +21,25 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $stock = (int)$_POST['stock'];
     $sku = trim($_POST['sku']);
 
-    // 1. SQL ajustado a los nombres reales de TablePlus
-    $sql = "INSERT INTO provider_products (proveedor_id, nombre_producto, descripcion, categoria_producto, precio_unitario, stock_disponible, sku_proveedor, activo) 
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+    // Añadimos unidad_medida al INSERT
+    $sql = "INSERT INTO provider_products (proveedor_id, nombre_producto, descripcion, categoria_producto, unidad_medida, precio_unitario, stock_disponible, sku_proveedor, activo) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
     
     $stmt = $conn->prepare($sql);
 
     if (!$stmt) {
-        // Esto nos dirá si falló otra columna (ej. precio_unitario)
         die("Error en el prepare: " . $conn->error);
     }
 
+    $unidad = $_POST['unidad_medida']; // Recibimos del formulario
     $activo = 1;
-    // 2. Ahora enviamos el texto de la categoría (ej. 'Botanas')
-    // Usamos 's' para categoria_producto
-    $stmt->bind_param("isssdisi", $proveedorId, $nombre, $desc, $categoria, $precio, $stock, $sku, $activo);
+
+    // Bind con 9 parámetros: i s s s s d i s i
+    $stmt->bind_param("issssd isi", $proveedorId, $nombre, $desc, $categoria, $unidad, $precio, $stock, $sku, $activo);
 
     if ($stmt->execute()) {
         header("Refresh: 2; url=gestionar_productos.php"); 
-        $mensaje = "¡Producto publicado con éxito! Redirigiendo...";
+        $mensaje = "¡Producto publicado! Redirigiendo...";
         $tipo = "success";
     } else {
         die("ERROR AL EJECUTAR: " . $stmt->error);
@@ -89,6 +89,16 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                     <option value="Bebidas">Bebidas</option>
                     <option value="Lácteos">Lácteos</option>
                     <option value="Panificados">Panificados</option>
+                </select>
+            </div>
+            <div class="field">
+                <label>Unidad de Medida</label>
+                <select name="unidad_medida">
+                    <option value="pieza">Pieza</option>
+                    <option value="paquete">Paquete</option>
+                    <option value="botella">Botella</option>
+                    <option value="caja">Caja</option>
+                    <option value="bolsa">Bolsa</option>
                 </select>
             </div>
             <div style="display: flex; gap: 10px;">
