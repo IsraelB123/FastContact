@@ -12,7 +12,14 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     if ($email === '' || $password_ingresada === '') {
         $error = "Por favor, ingresa tu correo y contraseña.";
     } else {
-        $stmt = $conn->prepare("SELECT id, nombre, email, password_hash, rol, estado FROM users WHERE email = ?");
+        $sql = "SELECT id, nombre, email, password_hash, rol, estado FROM users WHERE email = ?";
+        $stmt = $conn->prepare($sql);
+
+        if (!$stmt) {
+            // Esto imprimirá el error real de MySQL (ej. "Unknown column 'password_hash'")
+            die("Error en la base de datos: " . $conn->error);
+        }
+
         $stmt->bind_param("s", $email);
         $stmt->execute();
         $result = $stmt->get_result();
