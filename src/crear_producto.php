@@ -13,37 +13,69 @@ $mensaje = "";
 $tipo = "";
 
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
-    $proveedorId = $_SESSION['user_id'];
-    $nombre = trim($_POST['nombre_producto']);
-    $desc = trim($_POST['descripcion']);
-    $categoria = $_POST['categoria'];
-    $precio_sucio = str_replace(['$', ','], '', $_POST['precio']); 
-    $precio = (float)$precio_sucio;
-    $stock = (int)$_POST['stock'];
-    $sku = trim($_POST['sku']);
+    $conn->begin_transaction(); // Inicia el modo seguro
+    try {
+        // CORRECCIÓN: Usamos la sesión directamente
+        $sesionId = $_SESSION['user_id'];
 
-    // Añadimos unidad_medida al INSERT
-    $sql = "INSERT INTO provider_products (proveedor_id, nombre_producto, descripcion, categoria_producto, unidad_medida, precio_unitario, stock_disponible, sku_proveedor, activo) 
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
-    
-    $stmt = $conn->prepare($sql);
+        // 1. BUSCAR EL ID DEL PERFIL (No el del usuario)
+        $sqlPerfil = "SELECT id FROM provider_profiles WHERE user_id = ?";
+        $stmtP = $conn->prepare($sqlPerfil);
+        $stmtP->bind_param("i", $sesionId);
+        $stmtP->execute();
+        $resP = $stmtP->get_result();
+        $perfil = $resP->fetch_assoc();
+        
+        if (!$perfil) {
+            throw new Exception("No se encontró un perfil de empresa para este usuario.");
+        }
 
-    if (!$stmt) {
-        die("Error en el prepare: " . $conn->error);
-    }
+        $proveedorId = $perfil['id']; 
+        $nombre = trim($_POST['nombre_producto']);
+        $desc = trim($_POST['descripcion']);
+        $categoria = $_POST['categoria'];
+        $unidad = $_POST['unidad_medida']; 
+        $precio_sucio = str_replace(['$', ','], '', $_POST['precio']); 
+        $precio = (float)$precio_sucio;
+        $stock = (int)$_POST['stock'];
+        $sku = trim($_POST['sku']);
+        $activo = 1;
 
-    $unidad = $_POST['unidad_medida']; // Recibimos del formulario
-    $activo = 1;
+        // 2. VALIDACIÓN DE SKU DUPLICADO
+        $checkSku = $conn->prepare("SELECT id FROM provider_products WHERE sku_proveedor = ?");
+        $checkSku->bind_param("s", $sku);
+        $checkSku->execute();
+        
+        if ($checkSku->get_result()->num_rows > 0) {
+            $mensaje = "❌ El SKU '$sku' ya está registrado en tu inventario.";
+            $tipo = "error";
+            $conn->rollback(); // Cancelamos porque hay un error de usuario
+        } else {
+            // 3. PROCEDER CON EL INSERT
+            $sql = "INSERT INTO provider_products (proveedor_id, nombre_producto, descripcion, categoria_producto, unidad_medida, precio_unitario, stock_disponible, sku_proveedor, activo) 
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+            
+            $stmt = $conn->prepare($sql);
+            if (!$stmt) {
+                throw new Exception("Error en el prepare: " . $conn->error);
+            }
 
-    // Bind con 9 parámetros: i s s s s d i s i
-    $stmt->bind_param("issssdisi", $proveedorId, $nombre, $desc, $categoria, $unidad, $precio, $stock, $sku, $activo);
+            // Bind con 9 parámetros: i s s s s d i s i
+            $stmt->bind_param("issssdisi", $proveedorId, $nombre, $desc, $categoria, $unidad, $precio, $stock, $sku, $activo);
 
-    if ($stmt->execute()) {
-        header("Refresh: 2; url=gestionar_productos.php"); 
-        $mensaje = "✅ ¡Producto '<strong>$nombre</strong>' publicado con éxito! Redirigiendo...";
-        $tipo = "success";
-    } else {
-        die("ERROR AL EJECUTAR: " . $stmt->error);
+            if ($stmt->execute()) {
+                $conn->commit(); // GUARDADO DEFINITIVO ✅
+                $mensaje = "✅ ¡Producto '<strong>" . htmlspecialchars($nombre) . "</strong>' publicado con éxito!";
+                $tipo = "success";
+                header("Refresh: 2; url=gestionar_productos.php"); 
+            } else {
+                throw new Exception("Error al ejecutar el insert: " . $stmt->error);
+            }
+        }
+    } catch (Exception $e) {
+        $conn->rollback(); // Si algo falló en el código, deshacemos todo
+        $mensaje = "Error crítico: " . $e->getMessage();
+        $tipo = "error";
     }
 }
 
