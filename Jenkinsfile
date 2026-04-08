@@ -1,20 +1,22 @@
 pipeline {
-    agent any
+    agent any 
     
     stages {
-        stage('Descarga de Código') {
+        stage('Limpieza Manual') {
             steps {
-                echo 'Obteniendo la última versión de FastContact...'
+                echo 'Limpiando contenedores previos...'
+                // Usamos comandos de shell que interactúan con el socket compartido
+                sh 'docker rm -f fc_app fc_db || true'
             }
         }
         stage('Despliegue con Docker') {
             steps {
-                echo 'Desplegando FastContact y reparando permisos...'
-                // Cambiamos 'docker-compose' por 'docker compose'
-                sh 'docker compose up -d --force-recreate db app'
+                echo 'Desplegando FastContact...'
+                // Levantamos los servicios
+                sh 'docker compose up -d'
                 
-                // Reparamos permisos
-                sh 'docker compose up -d db app'
+                echo 'Reparando permisos...'
+                sh 'docker exec -u root fc_app chown -R www-data:www-data /var/www/html'
                 sh 'docker exec -u root fc_app chmod -R 755 /var/www/html'
             }
         }
