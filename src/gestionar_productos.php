@@ -9,21 +9,40 @@ if (!isset($_SESSION['user_id']) || $_SESSION['user_rol'] !== 'proveedor') {
     exit;
 }
 
-$proveedorId = $_SESSION['user_id'];
+$userId = $_SESSION['user_id'];
+
+// --- NUEVO: Buscar el ID del Perfil real ---
+$sqlPerfil = "SELECT id FROM provider_profiles WHERE user_id = ?";
+$stmtP = $conn->prepare($sqlPerfil);
+$stmtP->bind_param("i", $userId);
+$stmtP->execute();
+$resP = $stmtP->get_result();
+$perfil = $resP->fetch_assoc();
+
+if (!$perfil) {
+    die("Error: No tienes un perfil de proveedor activo.");
+}
+
+$proveedorId = $perfil['id']; // Ahora esto valdrá 22 para Sabritas
+// ------------------------------------------
+
 $mensaje = "";
 
-// 2. Lógica para ELIMINAR producto
+// 2. Lógica para ELIMINAR producto (Ya usa el $proveedorId correcto)
 if (isset($_GET['eliminar_id'])) {
     $id_prod = (int)$_GET['eliminar_id'];
-    // Validamos que el producto realmente pertenezca a este proveedor antes de borrar
     $stmt = $conn->prepare("DELETE FROM provider_products WHERE id = ? AND proveedor_id = ?");
     $stmt->bind_param("ii", $id_prod, $proveedorId);
     if ($stmt->execute()) {
-        $mensaje = "Producto eliminado correctamente.";
+        $mensaje = "✅ El producto ha sido eliminado permanentemente.";
+        $tipo_msj = "success";
+    } else {
+        $mensaje = "❌ Error al intentar eliminar el producto.";
+        $tipo_msj = "error";
     }
 }
 
-// 3. Obtener solo los productos de este proveedor
+// 3. Obtener los productos usando el ID de perfil
 $sql = "SELECT * FROM provider_products WHERE proveedor_id = ?";
 $stmt = $conn->prepare($sql);
 $stmt->bind_param("i", $proveedorId);
@@ -67,17 +86,20 @@ $result = $stmt->get_result();
                 <?php while($row = $result->fetch_assoc()): ?>
                 <tr>
                     <td><strong><?= htmlspecialchars($row['nombre_producto']) ?></strong></td>
-                    <td>$<?= number_format($row['precio_unitario'], 2) ?></td>
+                    <td><strong>$<?= number_format($row['precio_unitario'], 2) ?></strong></td>
                     <td>
-                        <span style="color: <?= ($row['stock_disponible'] < 10) ? '#ff5757' : '#8fef88' ?>; font-weight: bold;">
-                            <?= $row['stock_disponible'] ?> unidades
-                        </span>
+                        <?php if ($row['stock_disponible'] <= 0): ?>
+                            <span style="color: #ff5757; font-weight: bold;">🚫 Agotado</span>
+                        <?php elseif ($row['stock_disponible'] < 10): ?>
+                            <span style="color: #ffb347; font-weight: bold;">⚠️ <?= $row['stock_disponible'] ?> unidades</span>
+                        <?php else: ?>
+                            <span style="color: #8fef88;"><?= $row['stock_disponible'] ?> unidades</span>
+                        <?php endif; ?>
                     </td>
                     <td><code style="background: #444; padding: 2px 5px; border-radius: 4px;"><?= htmlspecialchars($row['sku_proveedor']) ?></code></td>
                     <td>
                         <a href="?eliminar_id=<?= $row['id'] ?>" class="btn-del" onclick="return confirm('¿Estás seguro de eliminar este producto del catálogo?')">🗑️ Eliminar</a>
                     </td>
-                </tr>
                 </tr>
                 <?php endwhile; ?>
             </tbody>
