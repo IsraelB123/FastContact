@@ -43,4 +43,5 @@ services:
       - "50000:50000"
     volumes:
       - ./jenkins_home:/var/jenkins_home
-      - /var/run/docker.sock:/var/run/docker.sock # ÚNICO NECESARIO
+      - /var/run/docker.sock:/var/run/docker.sock 
+      # ELIMINA LA LÍNEA DE /usr/bin/docker:/usr/bin/docker
