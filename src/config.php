@@ -5,9 +5,10 @@ $user = "user_fastcontact";
 $password = "password_seguro";
 $database = "fc_database";
 
-$conn = mysqli_connect($host, $user, $password, $database);
+mysqli_report(MYSQLI_REPORT_OFF); // Evita errores fatales automáticos
+$conn = @new mysqli($host, $user, $pass, $db);
 
 if (!$conn) {
-    die("Error de conexión: " . mysqli_connect_error());
+    die("Lo sentimos, el sistema de inventario está en mantenimiento temporal.");
 }
 ?>

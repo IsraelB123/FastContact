@@ -17,7 +17,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $nombre = trim($_POST['nombre_producto']);
     $desc = trim($_POST['descripcion']);
     $categoria = $_POST['categoria'];
-    $precio = (float)$_POST['precio'];
+    $precio_sucio = str_replace(['$', ','], '', $_POST['precio']); 
+    $precio = (float)$precio_sucio;
     $stock = (int)$_POST['stock'];
     $sku = trim($_POST['sku']);
 
@@ -35,11 +36,11 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $activo = 1;
 
     // Bind con 9 parámetros: i s s s s d i s i
-    $stmt->bind_param("issssd isi", $proveedorId, $nombre, $desc, $categoria, $unidad, $precio, $stock, $sku, $activo);
+    $stmt->bind_param("issssdisi", $proveedorId, $nombre, $desc, $categoria, $unidad, $precio, $stock, $sku, $activo);
 
     if ($stmt->execute()) {
         header("Refresh: 2; url=gestionar_productos.php"); 
-        $mensaje = "¡Producto publicado! Redirigiendo...";
+        $mensaje = "✅ ¡Producto '<strong>$nombre</strong>' publicado con éxito! Redirigiendo...";
         $tipo = "success";
     } else {
         die("ERROR AL EJECUTAR: " . $stmt->error);
@@ -104,11 +105,11 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             <div style="display: flex; gap: 10px;">
                 <div class="field" style="flex: 1;">
                     <label>Precio Unitario (MXN)</label>
-                    <input type="number" step="0.01" name="precio" placeholder="15.50" required>
+                    <input type="number" step="0.01" name="precio" min="0" placeholder="15.50" required>
                 </div>
                 <div class="field" style="flex: 1;">
                     <label>Stock Inicial</label>
-                    <input type="number" name="stock" placeholder="100" required>
+                    <input type="number" name="stock" min="0" placeholder="100" required>
                 </div>
             </div>
             <div class="field">
