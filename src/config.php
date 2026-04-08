@@ -6,7 +6,7 @@ $password = "password_seguro";
 $database = "fc_database";
 
 mysqli_report(MYSQLI_REPORT_OFF); // Evita errores fatales automáticos
-$conn = @new mysqli($host, $user, $pass, $db);
+$conn = @new mysqli($host, $user, $password, $database);
 
 if (!$conn) {
     die("Lo sentimos, el sistema de inventario está en mantenimiento temporal.");

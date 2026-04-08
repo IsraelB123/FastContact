@@ -414,6 +414,3 @@ function badgeEstado($estado) {
 </div>
 </body>
 </html>
-<?php
-$conn->close();
-?>

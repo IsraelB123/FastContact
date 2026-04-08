@@ -50,6 +50,5 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $stmt->close();
 }
 
-$conn->close();
 header("Location: panel_proveedor.php");
 exit;

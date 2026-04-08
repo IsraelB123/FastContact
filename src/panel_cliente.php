@@ -356,5 +356,5 @@ $stmtPedidos->close();
 </body>
 </html>
 <?php
-$conn->close();
+
 ?>
