@@ -7,16 +7,17 @@
     <meta charset="UTF-8">
     <title>FastContact – Inicio</title>
     <style>
-        * { box-sizing: border-box; }
+        * { box-sizing: border-box; transition: all 0.3s ease; }
         body {
             margin: 0;
-            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
             min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
-            background: radial-gradient(circle at top left, #ffb347 0, #ff7f32 30%, #1f1f1f 100%);
-            color: #fff;
+            /* CAMBIO DE FONDO: Deep Tech Blue */
+            background: radial-gradient(circle at top left, #1e293b 0%, #0f172a 40%, #020617 100%);
+            color: #f8fafc;
         }
         .container {
             width: 100%;
@@ -24,78 +25,85 @@
             padding: 20px;
         }
         .card {
-            background: rgba(0,0,0,0.45);
-            backdrop-filter: blur(14px);
-            border-radius: 18px;
-            padding: 26px 24px 22px;
-            box-shadow: 0 16px 40px rgba(0,0,0,0.4);
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            padding: 35px 30px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.4);
+            border: 1px solid rgba(255,255,255,0.05);
+            text-align: center;
         }
         .logo {
-            text-align: center;
-            margin-bottom: 16px;
+            margin-bottom: 20px;
         }
         .logo h1 {
             margin: 0;
-            font-size: 32px;
+            font-size: 36px;
             letter-spacing: 0.5px;
+            color: #f8fafc;
+            font-weight: 800;
         }
         .logo span {
-            font-size: 12px;
-            opacity: 0.85;
+            font-size: 13px;
+            color: #38bdf8; /* Azul Cian */
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            display: block;
+            margin-top: 5px;
         }
         .subtitle {
-            font-size: 14px;
-            text-align: center;
-            margin-top: 8px;
-            color: #f5f5f5;
+            font-size: 15px;
+            line-height: 1.5;
+            margin-top: 15px;
+            color: #cbd5e1;
         }
         .actions {
-            margin-top: 22px;
+            margin-top: 30px;
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            gap: 15px;
         }
         .btn {
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            gap: 6px;
-            padding: 11px 18px;
-            border-radius: 999px;
+            gap: 8px;
+            padding: 14px 20px;
+            border-radius: 14px;
             border: none;
             text-decoration: none;
-            font-size: 14px;
-            font-weight: 600;
+            font-size: 15px;
+            font-weight: 700;
             cursor: pointer;
-            transition: transform 0.1s ease, box-shadow 0.15s ease, background 0.2s ease, border-color 0.2s;
-            white-space: nowrap;
+            width: 100%;
         }
         .btn-primary {
-            background: #ff7f32;
-            color: #1b1b1b;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.35);
+            background: #38bdf8;
+            color: #0f172a;
+            box-shadow: 0 8px 20px rgba(56, 189, 248, 0.2);
         }
         .btn-primary:hover {
-            background: #ff954f;
-            transform: translateY(-1px);
+            background: #7dd3fc;
+            transform: translateY(-2px);
+            box-shadow: 0 12px 25px rgba(56, 189, 248, 0.3);
         }
         .btn-outline {
-            background: transparent;
-            color: #fff;
-            border: 1px solid rgba(255,255,255,0.5);
+            background: rgba(255, 255, 255, 0.05);
+            color: #f8fafc;
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
         .btn-outline:hover {
-            background: rgba(0,0,0,0.25);
-            transform: translateY(-1px);
-        }
-        .btn span.icon {
-            font-size: 16px;
+            background: rgba(255, 255, 255, 0.1);
+            border-color: #38bdf8;
+            color: #38bdf8;
+            transform: translateY(-2px);
         }
         .footer {
-            margin-top: 16px;
+            margin-top: 25px;
             font-size: 11px;
-            text-align: center;
-            opacity: 0.8;
+            color: #64748b;
+            line-height: 1.6;
         }
     </style>
 </head>
@@ -104,27 +112,28 @@
         <div class="card">
             <div class="logo">
                 <h1>FastContact</h1>
-                <span>Comunicación directa cliente–proveedor</span>
+                <span>Conexión B2B Directa</span>
             </div>
 
             <p class="subtitle">
-                Plataforma para que supermercados, abarrotes y tiendas de conveniencia
-                contacten de forma rápida a sus proveedores.
+                La plataforma inteligente que conecta a supermercados y tiendas de conveniencia 
+                con sus proveedores clave en tiempo real.
             </p>
 
             <div class="actions">
                 <a href="login.php" class="btn btn-primary">
-                    <span class="icon">🔐</span>
-                    <span>Iniciar sesión</span>
+                    <span>Entrar a la plataforma</span>
+                    <span>➡️</span>
                 </a>
                 <a href="lista_proveedores.php" class="btn btn-outline">
-                    <span class="icon">📋</span>
-                    <span>Ver proveedores registrados</span>
+                    <span>📋</span>
+                    <span>Ver directorio público</span>
                 </a>
             </div>
 
             <div class="footer">
-                FastContact · Prototipo para mejorar la comunicación entre tiendas y proveedores.
+                FastContact © 2026<br>
+                Sistema de gestión de inventarios y pedidos.
             </div>
         </div>
     </div>

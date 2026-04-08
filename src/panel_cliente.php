@@ -53,35 +53,41 @@ $stmtPedidos->close();
     <meta charset="UTF-8">
     <title>Panel del Cliente – FastContact</title>
     <style>
-        * { box-sizing: border-box; }
+        * { box-sizing: border-box; transition: all 0.3s ease; }
         body {
             margin: 0;
-            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            font-family: 'Inter', system-ui, sans-serif;
             min-height: 100vh;
-            background: radial-gradient(circle at top left, #ffb347 0, #ff7f32 30%, #1f1f1f 100%);
-            color: #fff;
+            background: radial-gradient(circle at top left, #1e293b 0%, #0f172a 40%, #020617 100%);
+            background-attachment: fixed;
+            color: #f8fafc;
         }
         .page {
             max-width: 1100px;
             margin: 0 auto;
-            padding: 20px 16px 30px;
+            padding: 25px 20px 30px;
         }
         header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 18px;
+            margin-bottom: 30px;
+            background: rgba(255, 255, 255, 0.03);
+            padding: 20px 25px;
+            border-radius: 20px;
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
         }
         .logo {
             font-weight: 700;
             letter-spacing: 0.5px;
-            font-size: 20px;
+            font-size: 24px;
         }
         .logo span {
             font-weight: 400;
             font-size: 12px;
             display: block;
-            opacity: 0.8;
+            color: #38bdf8;
         }
         .user-info {
             text-align: right;
@@ -95,34 +101,40 @@ $stmtPedidos->close();
             font-size: 11px;
             border: none;
             background: transparent;
-            color: #ffdddd;
+            color: #94a3b8;
             cursor: pointer;
             text-decoration: underline;
         }
+        .btn-logout:hover {
+            color: #f8fafc;
+        }
         .card {
-            background: rgba(0,0,0,0.45);
-            backdrop-filter: blur(14px);
-            border-radius: 18px;
-            padding: 18px 18px 16px;
-            box-shadow: 0 16px 40px rgba(0,0,0,0.4);
-            margin-bottom: 16px;
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            padding: 30px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            margin-bottom: 25px;
         }
         h1 {
-            font-size: 20px;
-            margin: 0 0 6px;
+            font-size: 22px;
+            margin: 0 0 8px;
+            color: #f8fafc;
         }
         h2 {
             font-size: 18px;
-            margin: 0 0 6px;
+            margin: 0 0 8px;
+            color: #f8fafc;
         }
         .subtitle {
-            font-size: 13px;
-            opacity: 0.9;
+            font-size: 14px;
+            color: #94a3b8;
             margin-bottom: 4px;
         }
         .tagline {
-            font-size: 12px;
-            opacity: 0.85;
+            font-size: 13px;
+            color: #64748b;
         }
 
         .providers-card {
@@ -132,81 +144,95 @@ $stmtPedidos->close();
             width: 100%;
             border-collapse: collapse;
             font-size: 13px;
-            margin-top: 6px;
+            margin-top: 15px;
         }
         th, td {
-            padding: 8px 6px;
+            padding: 12px 10px;
             text-align: left;
         }
         th {
-            font-size: 12px;
+            font-size: 11px;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
-            border-bottom: 1px solid rgba(255,255,255,0.2);
+            letter-spacing: 1px;
+            color: #38bdf8;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
         }
-        tr:nth-child(even) {
+        td {
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+        tr:hover td {
             background: rgba(255,255,255,0.02);
         }
-        tr:hover {
-            background: rgba(0,0,0,0.35);
-        }
         .badge {
-            padding: 3px 8px;
+            padding: 4px 10px;
             border-radius: 999px;
             font-size: 11px;
+            font-weight: bold;
             display: inline-block;
         }
         .badge-disponible {
-            background: rgba(54,255,156,0.15);
-            color: #36ff9c;
+            background: rgba(52, 211, 153, 0.15);
+            color: #6ee7b7;
         }
         .badge-ocupado {
-            background: rgba(255,196,87,0.18);
-            color: #ffd27f;
+            background: rgba(251, 191, 36, 0.15);
+            color: #fcd34d;
         }
         .badge-estado-pendiente {
-            background: rgba(255,196,0,0.15);
-            color: #ffd56a;
+            background: rgba(56, 189, 248, 0.15);
+            color: #38bdf8;
         }
         .badge-estado-enproceso {
-            background: rgba(0,190,255,0.15);
-            color: #9de6ff;
+            background: rgba(139, 92, 246, 0.15);
+            color: #c4b5fd;
         }
         .badge-estado-completado {
-            background: rgba(87,255,135,0.15);
-            color: #b4ffcf;
+            background: rgba(52, 211, 153, 0.15);
+            color: #6ee7b7;
         }
         .badge-estado-cancelado {
-            background: rgba(255,87,87,0.15);
-            color: #ffb0b0;
+            background: rgba(248, 113, 113, 0.15);
+            color: #fca5a5;
         }
 
         .btn-contact {
-            padding: 6px 10px;
-            border-radius: 999px;
+            padding: 8px 16px;
+            border-radius: 12px;
             border: none;
             font-size: 12px;
-            font-weight: 600;
+            font-weight: 700;
             cursor: pointer;
-            background: #ff7f32;
-            color: #1b1b1b;
-            transition: background 0.2s, transform 0.1s;
+            background: #38bdf8;
+            color: #0f172a;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 15px rgba(56, 189, 248, 0.2);
         }
         .btn-contact:hover {
-            background: #ff954f;
-            transform: translateY(-1px);
+            background: #7dd3fc;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(56, 189, 248, 0.3);
         }
+        
+        .btn-detail {
+            color: #38bdf8;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 12px;
+            border: 1px solid rgba(56, 189, 248, 0.3);
+            padding: 6px 12px;
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+        .btn-detail:hover {
+            background: rgba(56, 189, 248, 0.1);
+            border-color: #38bdf8;
+        }
+
         .small {
             font-size: 11px;
-            opacity: 0.8;
-            margin-top: 6px;
-        }
-        a {
-            color: #ffb347;
-            text-decoration: none;
-        }
-        a:hover {
-            text-decoration: underline;
+            color: #64748b;
+            margin-top: 10px;
+            display: block;
         }
     </style>
 </head>
@@ -215,7 +241,7 @@ $stmtPedidos->close();
     <header>
         <div class="logo">
             FastContact
-            <span>Panel del cliente</span>
+            <span>PANEL DEL CLIENTE</span>
         </div>
         <div class="user-info">
             <div>Sesión iniciada como <strong><?php echo htmlspecialchars($userName); ?></strong></div>
@@ -225,7 +251,6 @@ $stmtPedidos->close();
         </div>
     </header>
 
-    <!-- Tarjeta de bienvenida -->
     <section class="card">
         <h1>Bienvenido, <?php echo htmlspecialchars($userName); ?></h1>
         <p class="subtitle">
@@ -236,7 +261,6 @@ $stmtPedidos->close();
         </p>
     </section>
 
-    <!-- Lista de proveedores -->
     <section class="card providers-card">
         <h1>Proveedores disponibles</h1>
         <p class="subtitle">
@@ -258,7 +282,7 @@ $stmtPedidos->close();
             <?php if ($result && $result->num_rows > 0): ?>
                 <?php while ($row = $result->fetch_assoc()): ?>
                     <tr>
-                        <td><?php echo htmlspecialchars($row['nombre_empresa']); ?></td>
+                        <td><strong><?php echo htmlspecialchars($row['nombre_empresa']); ?></strong></td>
                         <td><?php echo htmlspecialchars($row['nombre_categoria'] ?? '-'); ?></td>
                         <td><?php echo htmlspecialchars($row['nombre_contacto']); ?></td>
                         <td><?php echo htmlspecialchars($row['telefono_contacto']); ?></td>
@@ -281,7 +305,7 @@ $stmtPedidos->close();
                 <?php endwhile; ?>
             <?php else: ?>
                 <tr>
-                    <td colspan="6">No hay proveedores registrados todavía.</td>
+                    <td colspan="6" style="text-align:center; opacity:0.5; padding: 20px;">No hay proveedores registrados todavía.</td>
                 </tr>
             <?php endif; ?>
             </tbody>
@@ -292,11 +316,10 @@ $stmtPedidos->close();
         </p>
     </section>
 
-    <!-- NUEVA SECCIÓN: Estado de mis pedidos -->
     <section class="card">
         <h2>Estado de mis pedidos</h2>
         <p class="subtitle">
-            Aquí puedes ver los pedidos que has realizado y su estado actual (pendiente, en proceso, completado o cancelado).
+            Aquí puedes ver los pedidos que has realizado y su estado actual.
         </p>
 
         <table>
@@ -314,8 +337,8 @@ $stmtPedidos->close();
             <?php if ($pedidosResult && $pedidosResult->num_rows > 0): ?>
                 <?php while ($pedido = $pedidosResult->fetch_assoc()): ?>
                     <tr>
-                        <td><?php echo (int)$pedido['id']; ?></td>
-                        <td><?php echo htmlspecialchars($pedido['proveedor']); ?></td>
+                        <td>#<?php echo (int)$pedido['id']; ?></td>
+                        <td><strong><?php echo htmlspecialchars($pedido['proveedor']); ?></strong></td>
                         <td><?php echo htmlspecialchars($pedido['fecha_pedido']); ?></td>
                         <td>
                             <?php
@@ -335,14 +358,13 @@ $stmtPedidos->close();
                         </td>
                         <td>$<?php echo number_format((float)$pedido['total'], 2); ?></td>
                         <td>
-                            <!-- Opcional: vista de detalle solo lectura para el cliente -->
-                            <a href="detalle_pedido_cliente.php?id=<?php echo (int)$pedido['id']; ?>">Ver detalle</a>
+                            <a href="detalle_pedido_cliente.php?id=<?php echo (int)$pedido['id']; ?>" class="btn-detail">Ver detalle</a>
                         </td>
                     </tr>
                 <?php endwhile; ?>
             <?php else: ?>
                 <tr>
-                    <td colspan="6">Aún no has realizado pedidos desde la plataforma.</td>
+                    <td colspan="6" style="text-align:center; opacity:0.5; padding: 20px;">Aún no has realizado pedidos desde la plataforma.</td>
                 </tr>
             <?php endif; ?>
             </tbody>
@@ -355,6 +377,3 @@ $stmtPedidos->close();
 </div>
 </body>
 </html>
-<?php
-
-?>

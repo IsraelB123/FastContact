@@ -16,7 +16,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $stmt = $conn->prepare($sql);
 
         if (!$stmt) {
-            // Esto imprimirá el error real de MySQL (ej. "Unknown column 'password_hash'")
             die("Error en la base de datos: " . $conn->error);
         }
 
@@ -24,7 +23,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $stmt->execute();
         $result = $stmt->get_result();
 
-        // AQUÍ ESTÁ EL CAMBIO CLAVE: fetch_assoc()
         if ($row = $result->fetch_assoc()) {
             $password_valida = false;
 
@@ -45,7 +43,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                     $_SESSION['user_name'] = $row['nombre'];
                     $_SESSION['user_rol']  = $row['rol'];
 
-                    // Ejemplo de lógica de redirección por rol
                     if ($_SESSION['user_rol'] === 'admin') {
                         header("Location: panel_admin.php");
                     } elseif ($_SESSION['user_rol'] === 'proveedor') {
@@ -59,7 +56,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 $error = "Contraseña incorrecta.";
             }
         } else {
-            // Esto te ayudará a saber si realmente encontró el correo
             $error = "No se encontró una cuenta con el correo: " . htmlspecialchars($email);
         }
         $stmt->close();
@@ -72,16 +68,17 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     <meta charset="UTF-8">
     <title>Iniciar sesión – FastContact</title>
     <style>
-        * { box-sizing: border-box; }
+        * { box-sizing: border-box; transition: all 0.3s ease; }
         body {
             margin: 0;
-            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
             min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
-            background: radial-gradient(circle at top left, #ffb347 0, #ff7f32 30%, #1f1f1f 100%);
-            color: #fff;
+            /* CAMBIO DE FONDO: Deep Tech Blue */
+            background: radial-gradient(circle at top left, #1e293b 0%, #0f172a 40%, #020617 100%);
+            color: #f8fafc;
         }
         .container {
             width: 100%;
@@ -89,133 +86,134 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             padding: 20px;
         }
         .card {
-            background: rgba(0,0,0,0.45);
-            backdrop-filter: blur(14px);
-            border-radius: 18px;
-            padding: 26px 24px 22px;
-            box-shadow: 0 16px 40px rgba(0,0,0,0.4);
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            padding: 30px 25px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.4);
+            border: 1px solid rgba(255,255,255,0.05);
             position: relative;
         }
         .back-link {
             position: absolute;
-            top: 12px;
-            left: 16px;
-            font-size: 11px;
+            top: 20px;
+            left: 20px;
+            font-size: 12px;
         }
         .back-link a {
-            color: #ffb347;
+            color: #38bdf8;
             text-decoration: none;
-            font-weight: 500;
+            font-weight: 600;
         }
         .back-link a:hover {
-            text-decoration: underline;
+            color: #7dd3fc;
         }
         .logo {
             text-align: center;
-            margin-bottom: 12px;
+            margin-bottom: 15px;
+            margin-top: 10px;
         }
         .logo h1 {
             margin: 0;
-            font-size: 30px;
+            font-size: 32px;
             letter-spacing: 0.5px;
+            color: #f8fafc;
         }
         .logo span {
             font-size: 11px;
-            opacity: 0.85;
+            color: #38bdf8;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
         h2 {
-            font-size: 16px;
+            font-size: 18px;
             text-align: center;
-            margin: 8px 0 14px;
+            margin: 10px 0 20px;
             font-weight: 500;
+            color: #e2e8f0;
         }
         .field {
-            margin-bottom: 14px;
+            margin-bottom: 18px;
         }
         label {
             display: block;
             font-size: 12px;
-            margin-bottom: 4px;
-            color: #f0f0f0;
+            margin-bottom: 6px;
+            color: #94a3b8;
+            font-weight: 500;
         }
         input[type="email"],
         input[type="password"] {
             width: 100%;
-            padding: 9px 11px;
-            border-radius: 10px;
-            border: 1px solid rgba(255,255,255,0.25);
-            background: rgba(0,0,0,0.35);
+            padding: 12px 14px;
+            border-radius: 12px;
+            border: 1px solid rgba(255,255,255,0.1);
+            background: rgba(0,0,0,0.3);
             color: #fff;
-            font-size: 13px;
-            transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+            font-size: 14px;
         }
         input[type="email"]::placeholder,
         input[type="password"]::placeholder {
-            color: rgba(255,255,255,0.5);
+            color: #475569;
         }
         input[type="email"]:focus,
         input[type="password"]:focus {
             outline: none;
-            border-color: #ffb347;
-            box-shadow: 0 0 0 2px rgba(255,180,71,0.3);
-            background: rgba(0,0,0,0.55);
+            border-color: #38bdf8;
+            box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.2);
+            background: rgba(0,0,0,0.5);
         }
         .btn-primary {
             width: 100%;
-            padding: 10px 18px;
-            border-radius: 999px;
+            padding: 12px;
+            border-radius: 12px;
             border: none;
-            background: #ff7f32;
-            color: #1b1b1b;
+            background: #38bdf8;
+            color: #0f172a;
             font-size: 14px;
-            font-weight: 600;
+            font-weight: 700;
             cursor: pointer;
-            margin-top: 6px;
+            margin-top: 10px;
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            gap: 6px;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.35);
-            transition: background 0.2s, transform 0.1s, box-shadow 0.15s;
+            gap: 8px;
+            box-shadow: 0 8px 20px rgba(56, 189, 248, 0.2);
         }
         .btn-primary:hover {
-            background: #ff954f;
-            transform: translateY(-1px);
+            background: #7dd3fc;
+            transform: translateY(-2px);
+            box-shadow: 0 12px 25px rgba(56, 189, 248, 0.3);
         }
         .btn-primary:active {
             transform: scale(0.98);
-            box-shadow: 0 4px 16px rgba(0,0,0,0.4);
-        }
-        .btn-primary span.icon {
-            font-size: 16px;
         }
         .error {
-            background: rgba(255, 87, 87, 0.1);
-            border: 1px solid rgba(255, 120, 120, 0.8);
-            color: #ffb3b3;
-            padding: 8px 10px;
-            border-radius: 10px;
-            font-size: 12px;
-            margin-bottom: 12px;
+            background: rgba(248, 113, 113, 0.1);
+            border: 1px solid rgba(248, 113, 113, 0.3);
+            color: #fca5a5;
+            padding: 10px 15px;
+            border-radius: 12px;
+            font-size: 13px;
+            margin-bottom: 20px;
+            text-align: center;
         }
         .extra-links {
-            margin-top: 12px;
-            font-size: 11px;
+            margin-top: 25px;
+            font-size: 12px;
             text-align: center;
-            color: #e0e0e0;
+            color: #94a3b8;
+            line-height: 1.6;
         }
         .extra-links a {
-            color: #ffb347;
+            color: #38bdf8;
             text-decoration: none;
-            font-weight: 500;
+            font-weight: 600;
         }
         .extra-links a:hover {
+            color: #7dd3fc;
             text-decoration: underline;
-        }
-        .hint {
-            font-size: 10px;
-            color: #c9c9c9;
-            margin-top: 3px;
         }
     </style>
 </head>
@@ -224,12 +222,12 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         <div class="card">
 
             <div class="back-link">
-                <a href="index.php">← Volver al inicio</a>
+                <a href="index.php">← Inicio</a>
             </div>
 
             <div class="logo">
                 <h1>FastContact</h1>
-                <span>Acceso a la plataforma</span>
+                <span>ACCESO AL SISTEMA</span>
             </div>
 
             <h2>Iniciar sesión</h2>
@@ -261,21 +259,18 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                         placeholder="Ingresa tu contraseña"
                         required
                     >
-                    <div class="hint">
-                       
-                    </div>
                 </div>
 
                 <button type="submit" class="btn-primary">
-                    <span class="icon">➡️</span>
-                    <span>Entrar</span>
+                    <span>Entrar al panel</span>
+                    <span style="font-size: 16px;">➡️</span>
                 </button>
             </form>
 
             <div class="extra-links">
-                ¿Eres nuevo en FastContact?<br>
-                <a href="registro_cliente.php">Solicitar alta como cliente</a> · 
-                <a href="solicitud_proveedor.php">Registrar proveedor</a>
+                ¿Aún no tienes cuenta?<br>
+                <a href="registro_cliente.php">Registro Cliente</a> &nbsp;·&nbsp; 
+                <a href="solicitud_proveedor.php">Registro Proveedor</a>
             </div>
         </div>
     </div>
