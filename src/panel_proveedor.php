@@ -68,73 +68,73 @@ $conn->close();
     <title>Panel del Proveedor – FastContact</title>
     /* --- REEMPLAZA TU SECCIÓN DE <style> POR ESTA --- */
 <style>
-    * { box-sizing: border-box; }
+    * { box-sizing: border-box; transition: all 0.3s ease; }
     body {
         margin: 0;
-        font-family: system-ui, -apple-system, sans-serif;
+        font-family: 'Inter', system-ui, sans-serif;
         min-height: 100vh;
-        background: radial-gradient(circle at top left, #ffb347 0, #ff7f32 40%, #121212 100%);
-        color: #fff;
+        /* CAMBIO DE FONDO: De Naranja a Azul Profundo / Carbono */
+        background: radial-gradient(circle at top left, #1e293b 0%, #0f172a 40%, #020617 100%);
+        background-attachment: fixed;
+        color: #f8fafc;
     }
-    .page { max-width: 1100px; margin: 0 auto; padding: 20px 16px; }
+    .page { max-width: 1200px; margin: 0 auto; padding: 25px 20px; }
     
     header {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        margin-bottom: 25px;
-        background: rgba(0,0,0,0.2);
-        padding: 15px 20px;
-        border-radius: 15px;
-        backdrop-filter: blur(10px);
+        margin-bottom: 30px;
+        background: rgba(255, 255, 255, 0.03);
+        padding: 20px 25px;
+        border-radius: 20px;
+        backdrop-filter: blur(15px);
+        border: 1px solid rgba(255, 255, 255, 0.08);
     }
-    .logo h1 { margin: 0; font-size: 22px; color: #fff; }
-    .logo span { font-size: 12px; opacity: 0.8; display: block; }
 
     .card {
-        background: rgba(0,0,0,0.45);
-        backdrop-filter: blur(14px);
-        border-radius: 20px;
-        padding: 25px;
-        box-shadow: 0 16px 40px rgba(0,0,0,0.5);
-        border: 1px solid rgba(255,255,255,0.1);
-        margin-bottom: 20px;
+        background: rgba(15, 23, 42, 0.6);
+        backdrop-filter: blur(20px);
+        border-radius: 24px;
+        padding: 30px;
+        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        margin-bottom: 25px;
     }
 
+    /* ACENTOS: Cambiamos el naranja por un Azul Eléctrico o Cian */
     .btn-main {
-        padding: 12px 20px;
-        border-radius: 12px;
+        background: #38bdf8; /* Azul Cian */
+        color: #0f172a;
+        padding: 12px 24px;
+        border-radius: 14px;
+        font-weight: 700;
         text-decoration: none;
-        font-weight: bold;
-        transition: all 0.3s ease;
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
+        box-shadow: 0 10px 20px rgba(56, 189, 248, 0.2);
     }
-    .btn-add { background: #ff7f32; color: #1a1a1a; box-shadow: 0 4px 15px rgba(255, 127, 50, 0.4); }
-    .btn-inventory { background: rgba(255,255,255,0.1); color: #fff; border: 1px solid rgba(255,255,255,0.2); }
-    .btn-main:hover { transform: translateY(-2px); opacity: 0.9; }
+    .btn-main:hover {
+        background: #7dd3fc;
+        transform: translateY(-2px);
+        box-shadow: 0 15px 30px rgba(56, 189, 248, 0.3);
+    }
 
     .summary-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-        gap: 15px;
-        margin-top: 20px;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 20px;
+        margin-top: 25px;
     }
     .summary-item {
-        background: rgba(255,255,255,0.05);
-        padding: 15px;
-        border-radius: 15px;
-        border-left: 4px solid #ff7f32;
+        background: rgba(255, 255, 255, 0.03);
+        padding: 20px;
+        border-radius: 18px;
+        border-top: 3px solid #38bdf8; /* Acento en la parte superior */
     }
-    .summary-item .label { display: block; font-size: 11px; text-transform: uppercase; opacity: 0.7; }
-    .summary-item .value { font-size: 24px; font-weight: bold; }
+    .summary-item .label { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: #94a3b8; }
+    .summary-item .value { font-size: 32px; font-weight: 800; display: block; margin-top: 5px; }
 
-    table { width: 100%; border-collapse: collapse; margin-top: 15px; }
-    th { text-align: left; font-size: 11px; text-transform: uppercase; padding: 12px; border-bottom: 1px solid rgba(255,255,255,0.2); color: #ffb347; }
-    td { padding: 12px; font-size: 13px; border-bottom: 1px solid rgba(255,255,255,0.05); }
-    .badge { padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: bold; }
-    .badge-pendiente { background: rgba(255,179,71,0.2); color: #ffb347; }
+    th { color: #38bdf8; border-bottom: 1px solid rgba(255, 255, 255, 0.1); }
+    .badge-pendiente { background: rgba(56, 189, 248, 0.15); color: #38bdf8; }
 </style>
 </head>
 <body>
@@ -159,28 +159,17 @@ $conn->close();
         <h1>Bienvenido, <?php echo htmlspecialchars($nombreEmpresa); ?></h1>
         <div class="acciones-rapidas" style="margin-bottom: 25px; display: flex; gap: 15px;">
     
-            <a href="crear_producto.php" class="btn-accion" style="
-                background: #ff7f32; 
-                color: #1a1a1a; 
-                padding: 12px 20px; 
-                border-radius: 10px; 
-                text-decoration: none; 
-                font-weight: bold; 
-                display: flex; 
-                align-items: center; 
-                gap: 8px;
-                box-shadow: 0 4px 15px rgba(255, 127, 50, 0.3);">
+            <a href="crear_producto.php" class="btn-main">
                 <span>+</span> Añadir Nuevo Producto
             </a>
 
-            <a href="gestionar_productos.php" class="btn-accion" style="
-                background: rgba(255, 255, 255, 0.1); 
-                color: #fff; 
+            <a href="gestionar_productos.php" style="
+                background: rgba(255, 255, 255, 0.05); 
+                color: #f8fafc; 
                 padding: 12px 20px; 
-                border-radius: 10px; 
+                border-radius: 14px; 
                 text-decoration: none; 
-                font-weight: 500; 
-                border: 1px solid rgba(255, 255, 255, 0.2);">
+                border: 1px solid rgba(255, 255, 255, 0.1);">
                 📦 Gestionar Mi Inventario
             </a>
     
