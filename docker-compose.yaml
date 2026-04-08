@@ -43,7 +43,4 @@ services:
       - "50000:50000"
     volumes:
       - ./jenkins_home:/var/jenkins_home
-      - /var/run/docker.sock:/var/run/docker.sock # Permite a Jenkins usar Docker
-      - /usr/bin/docker:/usr/bin/docker
-    group_add:
-      - "0" # Esto le da acceso al grupo root/docker del host
+      - /var/run/docker.sock:/var/run/docker.sock # ÚNICO NECESARIO
