@@ -45,3 +45,5 @@ services:
       - ./jenkins_home:/var/jenkins_home
       - /var/run/docker.sock:/var/run/docker.sock 
       # ELIMINA LA LÍNEA DE /usr/bin/docker:/usr/bin/docker
+volumes:
+  fc_mysql_data: # Esto crea el volumen oficial de Docker
