@@ -26,7 +26,7 @@ $totales = $conn->query("SELECT SUM(total) as gran_total FROM orders WHERE estad
 ?>
 <!DOCTYPE html>
 <html lang="es">
-/* --- REEMPLAZA EL CONTENIDO DE <head> Y <body> --- */
+
 <head>
     <meta charset="UTF-8">
     <title>Auditoría Global – FastContact</title>

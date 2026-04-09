@@ -42,12 +42,12 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $activo = 1;
 
         // 2. VALIDACIÓN DE SKU DUPLICADO
-        $checkSku = $conn->prepare("SELECT id FROM provider_products WHERE sku_proveedor = ?");
-        $checkSku->bind_param("s", $sku);
+        $checkSku = $conn->prepare("SELECT id FROM provider_products WHERE sku_proveedor = ? AND proveedor_id = ?");
+        $checkSku->bind_param("si", $sku, $proveedorId);
         $checkSku->execute();
         
         if ($checkSku->get_result()->num_rows > 0) {
-            $mensaje = "❌ El SKU '$sku' ya está registrado en tu inventario.";
+            $mensaje = "El SKU '$sku' ya está registrado en tu inventario.";
             $tipo = "error";
             $conn->rollback(); // Cancelamos porque hay un error de usuario
         } else {
@@ -65,7 +65,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
             if ($stmt->execute()) {
                 $conn->commit(); // GUARDADO DEFINITIVO ✅
-                $mensaje = "✅ ¡Producto '<strong>" . htmlspecialchars($nombre) . "</strong>' publicado con éxito!";
+                $mensaje = "¡Producto publicado con éxito! Redirigiendo al catálogo...";
                 $tipo = "success";
                 header("Refresh: 2; url=gestionar_productos.php"); 
             } else {
@@ -78,7 +78,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $tipo = "error";
     }
 }
-
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -86,21 +85,96 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     <meta charset="UTF-8">
     <title>Nuevo Producto – FastContact</title>
     <style>
-        body { font-family: sans-serif; background: #1a1a1a; color: #fff; display: flex; justify-content: center; padding: 40px; }
-        .form-card { background: #2a2a2a; padding: 25px; border-radius: 15px; width: 100%; max-width: 500px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-        .field { margin-bottom: 15px; }
-        label { display: block; font-size: 13px; margin-bottom: 5px; color: #ff7f32; }
-        input, select, textarea { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #444; background: #1a1a1a; color: #fff; box-sizing: border-box; }
-        .btn-save { width: 100%; padding: 12px; background: #ff7f32; border: none; border-radius: 8px; color: #fff; font-weight: bold; cursor: pointer; margin-top: 10px; }
-        .msg { padding: 10px; border-radius: 5px; margin-bottom: 15px; text-align: center; font-size: 14px; }
-        .success { background: rgba(75, 181, 67, 0.2); color: #8fef88; }
-        .error { background: rgba(255, 87, 87, 0.2); color: #ffb3b3; }
+        * { box-sizing: border-box; transition: all 0.3s ease; }
+        body { 
+            font-family: 'Inter', system-ui, sans-serif; 
+            margin: 0; 
+            background: radial-gradient(circle at top left, #1e293b 0%, #0f172a 40%, #020617 100%);
+            background-attachment: fixed;
+            color: #f8fafc; 
+            display: flex; 
+            justify-content: center; 
+            padding: 40px 20px;
+            min-height: 100vh;
+        }
+        
+        .form-card { 
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 35px 30px; 
+            border-radius: 24px; 
+            width: 100%; 
+            max-width: 550px; 
+            box-shadow: 0 20px 50px rgba(0,0,0,0.4); 
+            height: fit-content;
+        }
+
+        .back-link {
+            color: #38bdf8; text-decoration: none; font-weight: 600; font-size: 13px;
+            display: inline-flex; align-items: center; gap: 6px; margin-bottom: 20px;
+        }
+        .back-link:hover { text-decoration: underline; color: #7dd3fc; }
+
+        h1 { margin: 0 0 5px; font-size: 24px; color: #f8fafc; }
+        .subtitle { color: #94a3b8; font-size: 13px; margin-bottom: 25px; }
+
+        .msg { padding: 12px; border-radius: 12px; margin-bottom: 20px; text-align: center; font-size: 13px; font-weight: 500; }
+        .msg.success { background: rgba(52, 211, 153, 0.1); border: 1px solid rgba(52, 211, 153, 0.3); color: #6ee7b7; }
+        .msg.error { background: rgba(248, 113, 113, 0.1); border: 1px solid rgba(248, 113, 113, 0.3); color: #fca5a5; }
+
+        .field { margin-bottom: 18px; }
+        label { display: block; font-size: 12px; margin-bottom: 8px; color: #94a3b8; font-weight: 600; }
+        
+        input, select, textarea { 
+            width: 100%; 
+            padding: 12px 14px; 
+            border-radius: 12px; 
+            border: 1px solid rgba(255, 255, 255, 0.1); 
+            background: rgba(0,0,0,0.3); 
+            color: #fff; 
+            font-size: 14px;
+            font-family: inherit;
+        }
+        
+        input::placeholder, textarea::placeholder { color: #475569; }
+        
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #38bdf8;
+            box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.2);
+            background: rgba(0,0,0,0.5);
+        }
+
+        /* Estilo especial para los select options en modo oscuro */
+        select option { background: #1e293b; color: #fff; }
+
+        .row { display: flex; gap: 15px; }
+        .row .field { flex: 1; }
+
+        .btn-save { 
+            width: 100%; 
+            padding: 14px; 
+            background: #38bdf8; 
+            color: #0f172a; 
+            border: none; 
+            border-radius: 12px; 
+            font-size: 14px;
+            font-weight: 700; 
+            cursor: pointer; 
+            margin-top: 10px; 
+            box-shadow: 0 8px 20px rgba(56, 189, 248, 0.2);
+        }
+        .btn-save:hover { background: #7dd3fc; transform: translateY(-2px); box-shadow: 0 12px 25px rgba(56, 189, 248, 0.3); }
+        .btn-save:active { transform: scale(0.98); }
     </style>
 </head>
 <body>
     <div class="form-card">
-        <a href="gestionar_productos.php" style="color: #888; text-decoration: none; font-size: 12px;">← Volver a mi lista</a>
-        <h1 style="font-size: 22px; margin-top: 10px;">Añadir Producto</h1>
+        <a href="gestionar_productos.php" class="back-link">← Volver al catálogo</a>
+        
+        <h1>Añadir Producto</h1>
+        <p class="subtitle">Ingresa los detalles del nuevo artículo para tu catálogo B2B.</p>
 
         <?php if ($mensaje): ?>
             <div class="msg <?= $tipo ?>"><?= $mensaje ?></div>
@@ -111,43 +185,51 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 <label>Nombre del Producto</label>
                 <input type="text" name="nombre_producto" placeholder="Ej. Papas Sabritas Sal 45g" required>
             </div>
+            
             <div class="field">
                 <label>Descripción</label>
-                <textarea name="descripcion" rows="2" placeholder="Breve descripción del producto..."></textarea>
+                <textarea name="descripcion" rows="3" placeholder="Breve descripción, ingredientes o detalles técnicos..."></textarea>
             </div>
-            <div class="field">
-                <label>Categoría</label>
-                <select name="categoria">
-                    <option value="Botanas">Botanas</option>
-                    <option value="Bebidas">Bebidas</option>
-                    <option value="Lácteos">Lácteos</option>
-                    <option value="Panificados">Panificados</option>
-                </select>
+
+            <div class="row">
+                <div class="field">
+                    <label>Categoría</label>
+                    <select name="categoria">
+                        <option value="Botanas">Botanas</option>
+                        <option value="Bebidas">Bebidas</option>
+                        <option value="Lácteos">Lácteos</option>
+                        <option value="Panificados">Panificados</option>
+                        <option value="Abarrotes">Abarrotes</option>
+                    </select>
+                </div>
+                <div class="field">
+                    <label>Unidad de Medida</label>
+                    <select name="unidad_medida">
+                        <option value="pieza">Pieza</option>
+                        <option value="paquete">Paquete</option>
+                        <option value="botella">Botella</option>
+                        <option value="caja">Caja</option>
+                        <option value="bolsa">Bolsa</option>
+                    </select>
+                </div>
             </div>
-            <div class="field">
-                <label>Unidad de Medida</label>
-                <select name="unidad_medida">
-                    <option value="pieza">Pieza</option>
-                    <option value="paquete">Paquete</option>
-                    <option value="botella">Botella</option>
-                    <option value="caja">Caja</option>
-                    <option value="bolsa">Bolsa</option>
-                </select>
-            </div>
-            <div style="display: flex; gap: 10px;">
-                <div class="field" style="flex: 1;">
+
+            <div class="row">
+                <div class="field">
                     <label>Precio Unitario (MXN)</label>
                     <input type="number" step="0.01" name="precio" min="0" placeholder="15.50" required>
                 </div>
-                <div class="field" style="flex: 1;">
+                <div class="field">
                     <label>Stock Inicial</label>
                     <input type="number" name="stock" min="0" placeholder="100" required>
                 </div>
             </div>
+
             <div class="field">
                 <label>SKU (Código Interno)</label>
                 <input type="text" name="sku" placeholder="SAB-SAL-45" required>
             </div>
+
             <button type="submit" class="btn-save">Publicar Producto</button>
         </form>
     </div>

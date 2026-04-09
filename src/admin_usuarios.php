@@ -53,7 +53,6 @@ $result = $conn->query("SELECT * FROM solicitudes_proveedores ORDER BY fecha_sol
 ?>
 <!DOCTYPE html>
 <html lang="es">
-/* --- REEMPLAZA EL CONTENIDO DE <head> Y <body> --- */
 <head>
     <meta charset="UTF-8">
     <title>Solicitudes B2B – FastContact Admin</title>

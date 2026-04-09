@@ -3,7 +3,7 @@ session_save_path('/tmp');
 session_start();
 require_once "config.php";
 
-// 2. Verificamos la sesión (esto ahora sí debería funcionar)
+// 2. Verificamos la sesión
 if (!isset($_SESSION['user_id']) || $_SESSION['user_rol'] !== 'cliente') {
     header("Location: login.php");
     exit;
@@ -135,7 +135,7 @@ $sqlProductos = "SELECT
                     sku_proveedor,
                     stock_disponible
                  FROM provider_products
-                 WHERE proveedor_id = ?
+                 WHERE proveedor_id = ? AND activo = 1
                  ORDER BY nombre_producto ASC";
 
 $stmtProd = $conn->prepare($sqlProductos);
@@ -150,203 +150,109 @@ $stmtProd->close();
     <meta charset="UTF-8">
     <title>Crear pedido – FastContact</title>
     <style>
-        * { box-sizing: border-box; }
-        body {
-            margin: 0;
-            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        * { box-sizing: border-box; transition: all 0.3s ease; }
+        body { 
+            font-family: 'Inter', system-ui, sans-serif; 
+            margin: 0; 
+            background: radial-gradient(circle at top left, #1e293b 0%, #0f172a 40%, #020617 100%);
+            background-attachment: fixed;
+            color: #f8fafc; 
             min-height: 100vh;
-            background: radial-gradient(circle at top left, #ffb347 0, #ff7f32 30%, #1f1f1f 100%);
-            color: #fff;
         }
-        .page {
-            max-width: 1100px;
-            margin: 0 auto;
-            padding: 20px 16px 40px;
-        }
+        .page { max-width: 1100px; margin: 0 auto; padding: 25px 20px; }
+        
         header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 18px;
+            margin-bottom: 25px;
         }
-        .logo {
-            font-weight: 700;
-            letter-spacing: 0.5px;
-            font-size: 20px;
-        }
-        .logo span {
-            font-weight: 400;
-            font-size: 12px;
-            display: block;
-            opacity: 0.8;
-        }
+        
+        .logo h1 { margin: 0; font-size: 24px; letter-spacing: 0.5px; color: #f8fafc; }
+        .logo span { font-size: 12px; color: #38bdf8; font-weight: bold; letter-spacing: 1px; display: block; margin-top: 4px; }
+        
         .btn-back {
-            font-size: 12px;
-            border-radius: 999px;
-            padding: 6px 12px;
-            border: none;
-            background: rgba(0,0,0,0.4);
-            color: #fff;
-            cursor: pointer;
-            text-decoration: none;
+            color: #38bdf8; text-decoration: none; font-weight: 600; font-size: 13px;
+            display: inline-flex; align-items: center; gap: 6px;
+            border: 1px solid rgba(56, 189, 248, 0.3); padding: 8px 16px; border-radius: 12px;
         }
-        .btn-back:hover {
-            background: rgba(0,0,0,0.6);
-        }
-        .card {
-            background: rgba(0,0,0,0.45);
-            backdrop-filter: blur(14px);
-            border-radius: 18px;
-            padding: 18px 18px 16px;
-            box-shadow: 0 16px 40px rgba(0,0,0,0.4);
-            margin-bottom: 16px;
-        }
-        h1 {
-            font-size: 20px;
-            margin: 0 0 6px;
-        }
-        h2 {
-            font-size: 18px;
-            margin: 0 0 6px;
-        }
-        .subtitle {
-            font-size: 13px;
-            opacity: 0.9;
-            margin-bottom: 4px;
-        }
-        .tagline {
-            font-size: 12px;
-            opacity: 0.85;
-        }
-        .provider-info {
-            display: flex;
-            justify-content: space-between;
-            flex-wrap: wrap;
-            gap: 10px;
-            font-size: 13px;
-        }
-        .badge {
-            padding: 3px 8px;
-            border-radius: 999px;
-            font-size: 11px;
-            display: inline-block;
-        }
-        .badge-disponible {
-            background: rgba(54,255,156,0.15);
-            color: #36ff9c;
-        }
-        .badge-ocupado {
-            background: rgba(255,196,87,0.18);
-            color: #ffd27f;
+        .btn-back:hover { background: rgba(56, 189, 248, 0.1); border-color: #38bdf8; }
+
+        .card { 
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 30px;
+            border-radius: 24px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.4);
+            margin-bottom: 25px;
+            overflow-x: auto;
         }
 
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 13px;
-            margin-top: 8px;
-        }
-        th, td {
-            padding: 7px 6px;
-            text-align: left;
-        }
-        th {
-            font-size: 11px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            border-bottom: 1px solid rgba(255,255,255,0.2);
-        }
-        tr:nth-child(even) {
-            background: rgba(255,255,255,0.02);
-        }
-        tr:hover {
-            background: rgba(0,0,0,0.35);
-        }
+        h2 { margin: 0 0 5px; font-size: 20px; color: #f8fafc; }
+        .subtitle { color: #94a3b8; font-size: 13px; margin-bottom: 15px; }
+
+        .provider-info { display: flex; justify-content: space-between; align-items: flex-start; background: rgba(255,255,255,0.03); padding: 20px; border-radius: 16px; border-left: 3px solid #38bdf8; }
+        .provider-info strong { font-size: 18px; display: block; margin-bottom: 5px; color: #f8fafc; }
+        .small { font-size: 12px; color: #94a3b8; display: block; line-height: 1.5; }
+        
+        .badge { padding: 6px 12px; border-radius: 999px; font-size: 11px; font-weight: 700; letter-spacing: 0.5px; }
+        .badge-disponible { background: rgba(52, 211, 153, 0.15); color: #6ee7b7; }
+        .badge-ocupado { background: rgba(251, 191, 36, 0.15); color: #fcd34d; }
+
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th { text-align: left; color: #38bdf8; padding: 15px; border-bottom: 1px solid rgba(255, 255, 255, 0.1); font-size: 12px; text-transform: uppercase; letter-spacing: 1px; }
+        td { padding: 15px; border-bottom: 1px solid rgba(255, 255, 255, 0.05); font-size: 14px; }
+        tr:hover td { background: rgba(255,255,255,0.02); }
+
         .input-cantidad {
-            width: 70px;
-            padding: 4px 6px;
-            border-radius: 8px;
-            border: 1px solid rgba(255,255,255,0.3);
-            background: rgba(0,0,0,0.4);
-            color: #fff;
-            font-size: 12px;
+            width: 80px; padding: 8px 12px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.1); 
+            background: rgba(0,0,0,0.3); color: #fff; font-size: 14px;
         }
+        .input-cantidad:focus { outline: none; border-color: #38bdf8; box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.2); }
+        
         textarea {
-            width: 100%;
-            min-height: 60px;
-            border-radius: 10px;
-            border: 1px solid rgba(255,255,255,0.3);
-            background: rgba(0,0,0,0.4);
-            color: #fff;
-            padding: 8px;
-            font-size: 13px;
-            resize: vertical;
+            width: 100%; min-height: 80px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1);
+            background: rgba(0,0,0,0.3); color: #fff; padding: 12px 14px; font-size: 14px; resize: vertical; font-family: inherit;
         }
-        .btn-primary {
-            padding: 8px 16px;
-            border-radius: 999px;
-            border: none;
-            font-size: 13px;
-            font-weight: 600;
-            cursor: pointer;
-            background: #ff7f32;
-            color: #1b1b1b;
-            transition: background 0.2s, transform 0.1s;
-            margin-top: 10px;
+        textarea:focus { outline: none; border-color: #38bdf8; box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.2); }
+
+        .btn-primary { 
+            background: #38bdf8; color: #0f172a; padding: 14px 24px; border: none; border-radius: 12px; 
+            font-size: 14px; font-weight: 700; cursor: pointer; margin-top: 20px; box-shadow: 0 8px 20px rgba(56, 189, 248, 0.2);
+            display: inline-flex; align-items: center; gap: 8px;
         }
-        .btn-primary:hover {
-            background: #ff954f;
-            transform: translateY(-1px);
-        }
-        .alert {
-            padding: 8px 10px;
-            border-radius: 8px;
-            font-size: 12px;
-            margin-bottom: 10px;
-        }
-        .alert-success {
-            background: rgba(54,255,156,0.12);
-            border: 1px solid rgba(54,255,156,0.6);
-            color: #a7ffd2;
-        }
-        .alert-error {
-            background: rgba(255,87,87,0.12);
-            border: 1px solid rgba(255,87,87,0.7);
-            color: #ffb3b3;
-        }
-        .small {
-            font-size: 11px;
-            opacity: 0.8;
-            margin-top: 4px;
-        }
+        .btn-primary:hover { background: #7dd3fc; transform: translateY(-2px); box-shadow: 0 12px 25px rgba(56, 189, 248, 0.3); }
+
+        .alert { padding: 15px; border-radius: 12px; margin-bottom: 20px; font-size: 13px; font-weight: 500; }
+        .alert-success { background: rgba(52, 211, 153, 0.1); border: 1px solid rgba(52, 211, 153, 0.3); color: #6ee7b7; }
+        .alert-error { background: rgba(248, 113, 113, 0.1); border: 1px solid rgba(248, 113, 113, 0.3); color: #fca5a5; }
     </style>
 </head>
 <body>
 <div class="page">
     <header>
         <div class="logo">
-            FastContact
-            <span>Nuevo pedido</span>
+            <h1>FastContact</h1>
+            <span>NUEVO PEDIDO B2B</span>
         </div>
         <a href="panel_cliente.php" class="btn-back">← Volver al panel</a>
     </header>
 
     <section class="card">
-        <h1>Crear pedido</h1>
-        <p class="subtitle">
-            Estás levantando un pedido con el proveedor:
-        </p>
+        <h2>Detalles del Proveedor</h2>
+        <p class="subtitle">Estás levantando un pedido con el siguiente aliado comercial:</p>
 
         <div class="provider-info">
             <div>
-                <strong><?php echo htmlspecialchars($proveedor['nombre_empresa']); ?></strong><br>
+                <strong><?php echo htmlspecialchars($proveedor['nombre_empresa']); ?></strong>
                 <span class="small">
-                    <?php echo htmlspecialchars($proveedor['tipo_proveedor']); ?>
+                    <?php echo ucfirst(htmlspecialchars($proveedor['tipo_proveedor'])); ?>
                     <?php if (!empty($proveedor['nombre_categoria'])): ?>
                         · <?php echo htmlspecialchars($proveedor['nombre_categoria']); ?>
                     <?php endif; ?>
-                </span><br>
-                <span class="small">
+                </span>
+                <span class="small" style="margin-top: 5px;">
                     Contacto: <?php echo htmlspecialchars($proveedor['nombre_contacto'] ?? 'No especificado'); ?>
                     <?php if (!empty($proveedor['telefono_contacto'])): ?>
                         · Tel: <?php echo htmlspecialchars($proveedor['telefono_contacto']); ?>
@@ -355,9 +261,9 @@ $stmtProd->close();
             </div>
             <div>
                 <?php if ($proveedor['disponibilidad'] === 'disponible'): ?>
-                    <span class="badge badge-disponible">Proveedor disponible</span>
+                    <span class="badge badge-disponible">Proveedor Disponible</span>
                 <?php elseif ($proveedor['disponibilidad'] === 'ocupado'): ?>
-                    <span class="badge badge-ocupado">Con alta demanda</span>
+                    <span class="badge badge-ocupado">Con Alta Demanda</span>
                 <?php else: ?>
                     <span class="badge"><?php echo htmlspecialchars($proveedor['disponibilidad']); ?></span>
                 <?php endif; ?>
@@ -367,7 +273,7 @@ $stmtProd->close();
 
     <section class="card">
         <h2>Catálogo de productos</h2>
-        <p class="tagline">Indica la cantidad de cada producto que deseas pedir.</p>
+        <p class="subtitle">Indica la cantidad de cada producto que deseas pedir. Solo se añadirán los productos con cantidad mayor a cero.</p>
 
         <?php if (!empty($mensajeExito)): ?>
             <div class="alert alert-success"><?php echo htmlspecialchars($mensajeExito); ?></div>
@@ -380,56 +286,58 @@ $stmtProd->close();
         <form method="post" action="crear_pedido.php">
             <input type="hidden" name="proveedor_id" value="<?php echo (int)$proveedorId; ?>">
 
-            <div class="table-wrapper">
-                <table>
-                    <thead>
-                    <tr>
-                        <th>Producto</th>
-                        <th>Descripción</th>
-                        <th>Unidad</th>
-                        <th>Precio unitario</th>
-                        <th>Stock</th>
-                        <th>Cantidad</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <?php if ($productosResult && $productosResult->num_rows > 0): ?>
-                        <?php while ($prod = $productosResult->fetch_assoc()): ?>
-                            <tr>
-                                <td>
-                                    <?php echo htmlspecialchars($prod['nombre_producto']); ?><br>
-                                    <span class="small"><?php echo htmlspecialchars($prod['sku_proveedor']); ?></span>
-                                </td>
-                                <td><?php echo htmlspecialchars($prod['descripcion']); ?></td>
-                                <td><?php echo htmlspecialchars($prod['unidad_medida']); ?></td>
-                                <td>$ <?php echo number_format($prod['precio_unitario'], 2); ?></td>
-                                <td><?php echo (int)$prod['stock_disponible']; ?></td>
-                                <td>
-                                    <input type="hidden" name="producto_id[]" value="<?php echo (int)$prod['id']; ?>">
-                                    <input type="hidden" name="precio_unitario[]" value="<?php echo (float)$prod['precio_unitario']; ?>">
-                                    <input type="number" name="cantidad[]" min="0" max="<?php echo (int)$prod['stock_disponible']; ?>" class="input-cantidad" value="0">
-                                </td>
-                            </tr>
-                        <?php endwhile; ?>
-                    <?php else: ?>
+            <table>
+                <thead>
+                <tr>
+                    <th>Producto</th>
+                    <th>Unidad</th>
+                    <th>Precio (MXN)</th>
+                    <th>Stock Disponible</th>
+                    <th>Cantidad a Pedir</th>
+                </tr>
+                </thead>
+                <tbody>
+                <?php if ($productosResult && $productosResult->num_rows > 0): ?>
+                    <?php while ($prod = $productosResult->fetch_assoc()): ?>
                         <tr>
-                            <td colspan="6">Este proveedor aún no tiene productos registrados.</td>
+                            <td>
+                                <strong><?php echo htmlspecialchars($prod['nombre_producto']); ?></strong><br>
+                                <span class="small" style="margin-top: 3px; font-family: monospace;"><?php echo htmlspecialchars($prod['sku_proveedor']); ?></span>
+                            </td>
+                            <td style="color: #cbd5e1;"><?php echo htmlspecialchars($prod['unidad_medida']); ?></td>
+                            <td style="font-weight: 600;">$ <?php echo number_format($prod['precio_unitario'], 2); ?></td>
+                            <td>
+                                <?php if ($prod['stock_disponible'] <= 0): ?>
+                                    <span style="color: #fca5a5; font-weight: bold; font-size: 12px;">Agotado</span>
+                                <?php else: ?>
+                                    <span style="color: #6ee7b7; font-size: 13px;"><?php echo (int)$prod['stock_disponible']; ?></span>
+                                <?php endif; ?>
+                            </td>
+                            <td>
+                                <input type="hidden" name="producto_id[]" value="<?php echo (int)$prod['id']; ?>">
+                                <input type="hidden" name="precio_unitario[]" value="<?php echo (float)$prod['precio_unitario']; ?>">
+                                <input type="number" name="cantidad[]" min="0" max="<?php echo (int)$prod['stock_disponible']; ?>" class="input-cantidad" value="0" <?php echo ($prod['stock_disponible'] <= 0) ? 'disabled' : ''; ?>>
+                            </td>
                         </tr>
-                    <?php endif; ?>
-                    </tbody>
-                </table>
-            </div>
+                    <?php endwhile; ?>
+                <?php else: ?>
+                    <tr>
+                        <td colspan="5" style="text-align: center; color: #64748b; padding: 30px;">Este proveedor aún no tiene productos registrados en su catálogo activo.</td>
+                    </tr>
+                <?php endif; ?>
+                </tbody>
+            </table>
 
-            <div style="margin-top: 10px;">
-                <label for="notas" class="small">Notas adicionales para el proveedor (opcional):</label>
-                <textarea id="notas" name="notas" placeholder="Ejemplo: Favor de entregar por la mañana, entrada por bodega..."></textarea>
+            <div style="margin-top: 25px;">
+                <label for="notas" style="color: #38bdf8; font-size: 13px;">Notas adicionales para el proveedor (Opcional):</label>
+                <textarea id="notas" name="notas" placeholder="Ejemplo: Favor de entregar por la mañana, acceso por la rampa de descarga trasera..."></textarea>
             </div>
 
             <button type="submit" name="crear_pedido" class="btn-primary">
-                Confirmar pedido
+                <span>✓</span> Confirmar y Enviar Pedido
             </button>
-            <p class="small">
-                Al confirmar, tu pedido quedará registrado como <strong>pendiente</strong> y el proveedor podrá verlo en su panel para dar seguimiento.
+            <p class="small" style="margin-top: 15px;">
+                Al confirmar, tu pedido quedará registrado como <strong>Pendiente</strong> y el proveedor será notificado para dar seguimiento.
             </p>
         </form>
     </section>
