@@ -27,8 +27,8 @@ services:
     depends_on:
       - db
     volumes:
-      # Apuntamos a la carpeta exacta donde Jenkins clona el repositorio
-      - ./jenkins_home/workspace/FastContact-Pipeline/src:/var/www/html
+      # RUTA ABSOLUTA: Apunta directo al 'src' dentro del workspace de Jenkins
+      - C:/Users/Israel/Desktop/fastcontact/jenkins_home/workspace/FastContact-Pipeline/src:/var/www/html
     ports:
       - "8080:80"
     command: >
