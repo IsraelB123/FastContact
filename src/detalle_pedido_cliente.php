@@ -105,11 +105,9 @@ while ($row = $resultItems->fetch_assoc()) {
     $items[] = $row;
 }
 $stmtItems->close();
-
-// Cerrar conexión (se puede dejar hasta después de renderizar si prefieres)
 $conn->close();
 
-// Función para badge de estado
+// Función para badge de estado adaptado al Deep Tech Blue
 function badgeEstado($estado) {
     $estado = strtolower($estado);
     if ($estado === 'pendiente') {
@@ -130,55 +128,138 @@ function badgeEstado($estado) {
     <meta charset="UTF-8">
     <title>Detalle del pedido #<?php echo (int)$pedido['id']; ?> – FastContact</title>
     <style>
-        /* (estilos como antes) */
-        * { box-sizing: border-box; }
-        body { margin:0; font-family:system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; min-height:100vh; background: radial-gradient(circle at top left, #ffb347 0, #ff7f32 30%, #1f1f1f 100%); color:#fff; }
-        .page { max-width:900px; margin:0 auto; padding:20px 16px 30px; }
-        header { display:flex; justify-content:space-between; align-items:center; margin-bottom:18px; }
-        .logo { font-weight:700; letter-spacing:.5px; font-size:20px; }
-        .logo span { display:block; font-size:12px; opacity:.8; }
-        .btn-back, .btn-logout { background:transparent; border:none; color:#ffb347; text-decoration:underline; cursor:pointer; font-size:13px; }
-        .card { background: rgba(0,0,0,0.45); backdrop-filter: blur(14px); border-radius: 18px; padding: 18px; margin-bottom:16px; box-shadow:0 12px 30px rgba(0,0,0,0.35); }
-        .info-grid { display:grid; grid-template-columns: repeat(auto-fit,minmax(180px,1fr)); gap:10px; margin-top:10px; }
-        .info-item label { display:block; font-size:11px; opacity:.8; text-transform:uppercase; }
-        table { width:100%; border-collapse:collapse; margin-top:10px; font-size:13px; }
-        th, td { padding:8px 6px; text-align:left; }
-        thead { background: rgba(255,255,255,0.06); }
-        .badge { padding:3px 8px; border-radius:999px; font-size:11px; display:inline-block; }
-        .badge-estado-pendiente { background: rgba(255,196,0,0.15); color:#ffd56a; }
-        .badge-estado-enproceso { background: rgba(0,190,255,0.15); color:#9de6ff; }
-        .badge-estado-completado { background: rgba(87,255,135,0.15); color:#b4ffcf; }
-        .badge-estado-cancelado { background: rgba(255,87,87,0.15); color:#ffb0b0; }
-        .total-row td { border-top:1px solid rgba(255,255,255,0.3); font-weight:600; }
+        * { box-sizing: border-box; transition: all 0.3s ease; }
+        body { 
+            font-family: 'Inter', system-ui, sans-serif; 
+            margin: 0; 
+            background: radial-gradient(circle at top left, #1e293b 0%, #0f172a 40%, #020617 100%);
+            background-attachment: fixed;
+            color: #f8fafc; 
+            min-height: 100vh;
+        }
+        .page { max-width: 950px; margin: 0 auto; padding: 25px 20px; }
+        
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+        
+        .logo h1 { margin: 0; font-size: 24px; letter-spacing: 0.5px; color: #f8fafc; }
+        .logo span { font-size: 12px; color: #38bdf8; font-weight: bold; letter-spacing: 1px; display: block; margin-top: 4px; }
+        
+        .header-actions form { display: inline-block; margin-left: 10px; }
+        
+        .btn-back {
+            color: #38bdf8; text-decoration: none; font-weight: 600; font-size: 13px;
+            display: inline-flex; align-items: center; gap: 6px;
+            border: 1px solid rgba(56, 189, 248, 0.3); padding: 8px 16px; border-radius: 12px;
+            background: transparent; cursor: pointer;
+        }
+        .btn-back:hover { background: rgba(56, 189, 248, 0.1); border-color: #38bdf8; }
+
+        .btn-logout {
+            color: #fca5a5; font-size: 13px; font-weight: 600; border: none; background: transparent; 
+            text-decoration: underline; cursor: pointer; padding: 8px 16px;
+        }
+        .btn-logout:hover { color: #f87171; }
+
+        .card { 
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 30px;
+            border-radius: 24px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.4);
+            margin-bottom: 25px;
+            overflow-x: auto;
+        }
+
+        h1 { margin: 0 0 5px; font-size: 22px; color: #f8fafc; }
+        h2 { margin: 0 0 15px; font-size: 18px; color: #f8fafc; }
+        .subtitle { color: #94a3b8; font-size: 13px; margin-bottom: 20px; }
+
+        .info-grid { 
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); 
+            gap: 15px; margin-top: 20px; 
+        }
+        .info-item {
+            background: rgba(255, 255, 255, 0.02);
+            padding: 20px;
+            border-radius: 16px;
+            border-top: 3px solid #38bdf8;
+        }
+        .info-item label { display: block; font-size: 11px; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
+        .info-item span { font-size: 15px; font-weight: 600; color: #f8fafc; display: block; }
+        .info-item .total-val { font-size: 20px; color: #38bdf8; }
+
+        .badge { padding: 4px 10px; border-radius: 999px; font-size: 11px; font-weight: bold; display: inline-block; }
+        .badge-estado-pendiente { background: rgba(56, 189, 248, 0.15); color: #38bdf8; } /* Cyan */
+        .badge-estado-enproceso { background: rgba(139, 92, 246, 0.15); color: #c4b5fd; } /* Morado */
+        .badge-estado-completado { background: rgba(52, 211, 153, 0.15); color: #6ee7b7; } /* Verde */
+        .badge-estado-cancelado { background: rgba(248, 113, 113, 0.15); color: #fca5a5; } /* Rojo */
+
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th { text-align: left; color: #38bdf8; padding: 15px; border-bottom: 1px solid rgba(255, 255, 255, 0.1); font-size: 12px; text-transform: uppercase; letter-spacing: 1px; }
+        td { padding: 15px; border-bottom: 1px solid rgba(255, 255, 255, 0.05); font-size: 14px; }
+        tr:hover td { background: rgba(255,255,255,0.02); }
+        
+        .total-row td { border-top: 2px solid rgba(56, 189, 248, 0.3); font-weight: 700; color: #f8fafc; font-size: 15px; }
+        .total-row .calc-label { color: #94a3b8; text-transform: uppercase; font-size: 12px; letter-spacing: 1px; }
     </style>
 </head>
 <body>
 <div class="page">
     <header>
-        <div class="logo">FastContact <span>Detalle del pedido</span></div>
-        <div>
-            <form method="get" action="panel_cliente.php" style="display:inline;"><button type="submit" class="btn-back">← Volver al panel</button></form>
-            <form method="post" action="logout.php" style="display:inline;"><button type="submit" class="btn-logout">Cerrar sesión</button></form>
+        <div class="logo">
+            <h1>FastContact</h1>
+            <span>DETALLE DEL PEDIDO</span>
+        </div>
+        <div class="header-actions">
+            <form method="get" action="panel_cliente.php">
+                <button type="submit" class="btn-back">← Volver al panel</button>
+            </form>
+            <form method="post" action="logout.php">
+                <button type="submit" class="btn-logout">Cerrar sesión</button>
+            </form>
         </div>
     </header>
 
     <section class="card">
         <h1>Pedido #<?php echo (int)$pedido['id']; ?></h1>
-        <p class="subtitle">Revisa el detalle de los productos incluidos en tu pedido y el estado actual del mismo.</p>
+        <p class="subtitle">Revisa el estado actual y el desglose de los productos incluidos en tu orden.</p>
 
         <div class="info-grid">
-            <div class="info-item"><label>Proveedor</label><span><?php echo htmlspecialchars($pedido['proveedor']); ?></span></div>
-            <div class="info-item"><label>Fecha del pedido</label><span><?php echo htmlspecialchars($pedido['fecha_pedido']); ?></span></div>
-            <div class="info-item"><label>Estado</label><span><?php echo badgeEstado($pedido['estado']); ?></span></div>
-            <div class="info-item"><label>Total estimado</label><span>$<?php echo number_format((float)$pedido['total'], 2); ?> MXN</span></div>
+            <div class="info-item">
+                <label>Proveedor</label>
+                <span><?php echo htmlspecialchars($pedido['proveedor']); ?></span>
+            </div>
+            <div class="info-item">
+                <label>Fecha de emisión</label>
+                <span style="font-family: monospace; font-size: 13px;"><?php echo htmlspecialchars($pedido['fecha_pedido']); ?></span>
+            </div>
+            <div class="info-item" style="border-top-color: #6ee7b7;">
+                <label>Estado Actual</label>
+                <span><?php echo badgeEstado($pedido['estado']); ?></span>
+            </div>
+            <div class="info-item" style="border-top-color: #38bdf8;">
+                <label>Total Estimado</label>
+                <span class="total-val">$<?php echo number_format((float)$pedido['total'], 2); ?> MXN</span>
+            </div>
         </div>
     </section>
 
     <section class="card">
-        <h2>Productos del pedido</h2>
+        <h2>Desglose de Productos</h2>
         <table>
             <thead>
-                <tr><th>Producto</th><th>Cantidad</th><th>Precio unitario (MXN)</th><th>Subtotal (MXN)</th></tr>
+                <tr>
+                    <th>Producto</th>
+                    <th>Cantidad</th>
+                    <th>Precio unitario (MXN)</th>
+                    <th>Subtotal (MXN)</th>
+                </tr>
             </thead>
             <tbody>
             <?php
@@ -191,15 +272,18 @@ function badgeEstado($estado) {
                     $suma += (float)$subtotal;
                     ?>
                     <tr>
-                        <td><?php echo htmlspecialchars($item['nombre_producto'] ?? '—'); ?></td>
-                        <td><?php echo $cantidad; ?></td>
+                        <td><strong><?php echo htmlspecialchars($item['nombre_producto'] ?? '—'); ?></strong></td>
+                        <td style="color: #cbd5e1;"><?php echo $cantidad; ?> unds.</td>
                         <td>$<?php echo number_format($precio, 2); ?></td>
-                        <td>$<?php echo number_format((float)$subtotal, 2); ?></td>
+                        <td style="font-weight: 600;">$<?php echo number_format((float)$subtotal, 2); ?></td>
                     </tr>
                 <?php endforeach; ?>
-                <tr class="total-row"><td colspan="3" style="text-align:right">Total calculado:</td><td>$<?php echo number_format($suma, 2); ?></td></tr>
+                <tr class="total-row">
+                    <td colspan="3" style="text-align:right" class="calc-label">Total calculado:</td>
+                    <td style="color: #38bdf8;">$<?php echo number_format($suma, 2); ?></td>
+                </tr>
             <?php else: ?>
-                <tr><td colspan="4">No hay productos registrados para este pedido.</td></tr>
+                <tr><td colspan="4" style="text-align: center; padding: 30px; color: #64748b;">No se encontraron productos registrados para este pedido.</td></tr>
             <?php endif; ?>
             </tbody>
         </table>
