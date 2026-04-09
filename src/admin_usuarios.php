@@ -53,52 +53,99 @@ $result = $conn->query("SELECT * FROM solicitudes_proveedores ORDER BY fecha_sol
 ?>
 <!DOCTYPE html>
 <html lang="es">
+/* --- REEMPLAZA EL CONTENIDO DE <head> Y <body> --- */
 <head>
     <meta charset="UTF-8">
-    <title>Panel Admin B2B – FastContact</title>
+    <title>Solicitudes B2B – FastContact Admin</title>
     <style>
-        body { font-family: sans-serif; background: #1a1a1a; color: #fff; padding: 30px; }
-        .card { background: #2a2a2a; padding: 20px; border-radius: 12px; }
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        th { text-align: left; color: #ff7f32; border-bottom: 2px solid #444; padding: 10px; }
-        td { padding: 10px; border-bottom: 1px solid #333; }
-        .btn { background: #4bb543; color: white; padding: 6px 12px; border-radius: 4px; text-decoration: none; font-weight: bold; font-size: 12px; }
-        .msg { background: rgba(75, 181, 67, 0.2); color: #8fef88; padding: 10px; border-radius: 6px; margin-bottom: 15px; }
+        * { box-sizing: border-box; transition: all 0.3s ease; }
+        body { 
+            font-family: 'Inter', system-ui, sans-serif; 
+            margin: 0; 
+            background: radial-gradient(circle at top left, #1e293b 0%, #0f172a 40%, #020617 100%);
+            background-attachment: fixed;
+            color: #f8fafc; 
+            padding: 30px 20px;
+            min-height: 100vh;
+        }
+        .container { max-width: 1000px; margin: 0 auto; }
+        .back-link { color: #38bdf8; text-decoration: none; font-weight: 600; font-size: 14px; display: inline-flex; align-items: center; gap: 6px; margin-bottom: 25px; }
+        
+        .card { 
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 35px;
+            border-radius: 24px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.4);
+        }
+
+        h1 { margin: 0 0 10px; font-size: 26px; color: #f8fafc; }
+        .msg { 
+            background: rgba(52, 211, 153, 0.1); 
+            border: 1px solid rgba(52, 211, 153, 0.3); 
+            color: #6ee7b7; 
+            padding: 12px; 
+            border-radius: 12px; 
+            margin-bottom: 20px; 
+            font-size: 14px;
+            text-align: center;
+        }
+
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        th { text-align: left; color: #38bdf8; padding: 15px; border-bottom: 1px solid rgba(255, 255, 255, 0.1); font-size: 12px; text-transform: uppercase; letter-spacing: 1px; }
+        td { padding: 15px; border-bottom: 1px solid rgba(255, 255, 255, 0.05); font-size: 14px; }
+        tr:hover td { background: rgba(255,255,255,0.02); }
+
+        .btn-approve { 
+            background: #38bdf8; 
+            color: #0f172a; 
+            padding: 8px 16px; 
+            border-radius: 10px; 
+            text-decoration: none; 
+            font-weight: 700; 
+            font-size: 12px;
+            box-shadow: 0 4px 12px rgba(56, 189, 248, 0.2);
+        }
+        .btn-approve:hover { background: #7dd3fc; transform: translateY(-2px); }
     </style>
 </head>
 <body>
-    <div class="card">
-        <h1>Solicitudes de Proveedores Pendientes</h1>
-        <?php if ($mensaje): ?><div class="msg"><?= $mensaje ?></div><?php endif; ?>
+    <div class="container">
+        <a href="panel_admin.php" class="back-link">← Volver al Panel</a>
+        <div class="card">
+            <h1>Solicitudes Pendientes</h1>
+            <p style="color: #94a3b8; font-size: 14px; margin-bottom: 25px;">Revisa y aprueba a los nuevos aliados comerciales de la red.</p>
+            
+            <?php if ($mensaje): ?><div class="msg"><?= $mensaje ?></div><?php endif; ?>
 
-        <table>
-            <thead>
-                <tr>
-                    <th>Empresa</th>
-                    <th>Contacto</th>
-                    <th>Email</th>
-                    <th>Fecha Solicitud</th>
-                    <th>Acción</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php if ($result && $result->num_rows > 0): ?>
-                    <?php while($row = $result->fetch_assoc()): ?>
-                        <tr>
-                            <td><strong><?= htmlspecialchars($row['nombre_empresa']) ?></strong></td>
-                            <td><?= htmlspecialchars($row['nombre_contacto']) ?></td>
-                            <td><?= htmlspecialchars($row['email']) ?></td>
-                            <td><?= $row['fecha_solicitud'] ?></td>
-                            <td><a href="?aprobar_id=<?= $row['id'] ?>" class="btn">APROBAR</a></td>
-                        </tr>
-                    <?php endwhile; ?>
-                <?php else: ?>
-                    <tr><td colspan="5" style="text-align:center; padding:30px;">No hay solicitudes pendientes.</td></tr>
-                <?php endif; ?>
-            </tbody>
-        </table>
-        <br>
-        <a href="panel_cliente.php" style="color:#888;">← Regresar al Panel</a>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Empresa</th>
+                        <th>Contacto</th>
+                        <th>Email</th>
+                        <th>Fecha</th>
+                        <th>Acción</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php if ($result && $result->num_rows > 0): ?>
+                        <?php while($row = $result->fetch_assoc()): ?>
+                            <tr>
+                                <td><strong><?= htmlspecialchars($row['nombre_empresa']) ?></strong></td>
+                                <td><?= htmlspecialchars($row['nombre_contacto']) ?></td>
+                                <td style="color: #cbd5e1;"><?= htmlspecialchars($row['email']) ?></td>
+                                <td style="font-size: 12px; opacity: 0.7;"><?= date('d/m/Y', strtotime($row['fecha_solicitud'])) ?></td>
+                                <td><a href="?aprobar_id=<?= $row['id'] ?>" class="btn-approve">APROBAR</a></td>
+                            </tr>
+                        <?php endwhile; ?>
+                    <?php else: ?>
+                        <tr><td colspan="5" style="text-align:center; padding:40px; color: #64748b;">No hay solicitudes en este momento.</td></tr>
+                    <?php endif; ?>
+                </tbody>
+            </table>
+        </div>
     </div>
 </body>
 </html>

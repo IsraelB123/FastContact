@@ -26,67 +26,97 @@ $totales = $conn->query("SELECT SUM(total) as gran_total FROM orders WHERE estad
 ?>
 <!DOCTYPE html>
 <html lang="es">
+/* --- REEMPLAZA EL CONTENIDO DE <head> Y <body> --- */
 <head>
     <meta charset="UTF-8">
-    <title>Historial Global – FastContact</title>
+    <title>Auditoría Global – FastContact</title>
     <style>
-        body { font-family: sans-serif; background: #121212; color: #fff; padding: 30px; }
-        .stats-bar { display: flex; gap: 20px; margin-bottom: 30px; }
-        .stat-card { background: #1e1e1e; padding: 20px; border-radius: 12px; flex: 1; border-left: 4px solid #ff7f32; }
-        .table-container { background: #1e1e1e; padding: 20px; border-radius: 15px; }
-        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
-        th { text-align: left; color: #ff7f32; padding: 12px; border-bottom: 2px solid #333; font-size: 14px; }
-        td { padding: 12px; border-bottom: 1px solid #222; font-size: 13px; }
-        .badge { padding: 4px 8px; border-radius: 4px; font-size: 10px; font-weight: bold; text-transform: uppercase; }
-        .pendiente { background: #ffb347; color: #000; }
-        .completado { background: #4bb543; color: #fff; }
-        .cancelado { background: #ff5757; color: #fff; }
+        * { box-sizing: border-box; transition: all 0.3s ease; }
+        body { 
+            font-family: 'Inter', system-ui, sans-serif; 
+            margin: 0; 
+            background: radial-gradient(circle at top left, #1e293b 0%, #0f172a 40%, #020617 100%);
+            background-attachment: fixed;
+            color: #f8fafc; 
+            padding: 30px 20px;
+            min-height: 100vh;
+        }
+        .container { max-width: 1100px; margin: 0 auto; }
+        .back-link { color: #38bdf8; text-decoration: none; font-weight: 600; font-size: 14px; display: inline-flex; align-items: center; gap: 6px; margin-bottom: 25px; }
+
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; margin-bottom: 30px; }
+        .stat-card { 
+            background: rgba(15, 23, 42, 0.6); 
+            backdrop-filter: blur(15px);
+            padding: 25px; 
+            border-radius: 20px; 
+            border: 1px solid rgba(255,255,255,0.05);
+            border-left: 4px solid #38bdf8;
+        }
+        .stat-label { color: #94a3b8; font-size: 12px; text-transform: uppercase; letter-spacing: 1px; }
+        .stat-value { font-size: 28px; font-weight: 800; margin-top: 8px; color: #f8fafc; }
+
+        .table-card { 
+            background: rgba(15, 23, 42, 0.6); 
+            backdrop-filter: blur(20px);
+            padding: 30px; 
+            border-radius: 24px; 
+            border: 1px solid rgba(255,255,255,0.05);
+            overflow-x: auto;
+        }
+        
+        table { width: 100%; border-collapse: collapse; }
+        th { text-align: left; color: #38bdf8; padding: 15px; border-bottom: 1px solid rgba(255,255,255,0.1); font-size: 11px; text-transform: uppercase; }
+        td { padding: 15px; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 13px; }
+        
+        .badge { padding: 5px 12px; border-radius: 20px; font-size: 10px; font-weight: 800; text-transform: uppercase; }
+        .completado { background: rgba(52, 211, 153, 0.15); color: #6ee7b7; }
+        .pendiente { background: rgba(251, 191, 36, 0.15); color: #fcd34d; }
+        .cancelado { background: rgba(248, 113, 113, 0.15); color: #fca5a5; }
     </style>
 </head>
 <body>
-    <a href="panel_admin.php" style="color: #888; text-decoration: none; font-size: 12px;">← Volver al Panel Maestro</a>
-    <h1>Historial de Transacciones Global</h1>
-
-    <div class="stats-bar">
-        <div class="stat-card">
-            <div style="color: #888; font-size: 12px;">Ventas Finalizadas</div>
-            <div style="font-size: 24px; font-weight: bold;">$<?= number_format($totales['gran_total'] ?? 0, 2) ?> MXN</div>
+    <div class="container">
+        <a href="panel_admin.php" class="back-link">← Volver al Centro de Mando</a>
+        
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-label">Ventas Finalizadas</div>
+                <div class="stat-value">$<?= number_format($totales['gran_total'] ?? 0, 2) ?></div>
+            </div>
+            <div class="stat-card" style="border-left-color: #6ee7b7;">
+                <div class="stat-label">Pedidos en Red</div>
+                <div class="stat-value"><?= $result->num_rows ?></div>
+            </div>
         </div>
-        <div class="stat-card" style="border-left-color: #4bb543;">
-            <div style="color: #888; font-size: 12px;">Pedidos Totales</div>
-            <div style="font-size: 24px; font-weight: bold;"><?= $result->num_rows ?></div>
-        </div>
-    </div>
 
-    <div class="table-container">
-        <table>
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Fecha</th>
-                    <th>Cliente</th>
-                    <th>Proveedor</th>
-                    <th>Total</th>
-                    <th>Estado</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php while($row = $result->fetch_assoc()): ?>
-                <tr>
-                    <td>#<?= $row['id'] ?></td>
-                    <td><?= date('d/m/Y H:i', strtotime($row['fecha_pedido'])) ?></td>
-                    <td><?= htmlspecialchars($row['cliente']) ?></td>
-                    <td><strong><?= htmlspecialchars($row['proveedor']) ?></strong></td>
-                    <td>$<?= number_format($row['total'], 2) ?></td>
-                    <td>
-                        <span class="badge <?= $row['estado'] ?>">
-                            <?= $row['estado'] ?>
-                        </span>
-                    </td>
-                </tr>
-                <?php endwhile; ?>
-            </tbody>
-        </table>
+        <div class="table-card">
+            <h2 style="margin: 0 0 20px; font-size: 20px;">Historial Global de Transacciones</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Fecha</th>
+                        <th>Cliente</th>
+                        <th>Proveedor</th>
+                        <th>Total</th>
+                        <th>Estado</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php while($row = $result->fetch_assoc()): ?>
+                    <tr>
+                        <td style="color: #38bdf8; font-weight: bold;">#<?= $row['id'] ?></td>
+                        <td><?= date('d/m/Y H:i', strtotime($row['fecha_pedido'])) ?></td>
+                        <td><?= htmlspecialchars($row['cliente']) ?></td>
+                        <td><strong><?= htmlspecialchars($row['proveedor']) ?></strong></td>
+                        <td style="font-weight: 600;">$<?= number_format($row['total'], 2) ?></td>
+                        <td><span class="badge <?= $row['estado'] ?>"><?= $row['estado'] ?></span></td>
+                    </tr>
+                    <?php endwhile; ?>
+                </tbody>
+            </table>
+        </div>
     </div>
 </body>
 </html>
