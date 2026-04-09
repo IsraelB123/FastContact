@@ -3,7 +3,7 @@ version: '3.8'
 services:
   # Servidor de Base de Datos
   db:
-    image: mariadb:10.4 # Misma versión que tu SQL
+    image: mariadb:10.4
     container_name: fc_db
     restart: always
     environment:
@@ -12,9 +12,9 @@ services:
       MYSQL_USER: user_fastcontact
       MYSQL_PASSWORD: password_seguro
     volumes:
-      - ./mysql_data:/var/lib/mysql
-      # Importante: Pon tu archivo .sql en una carpeta llamada /docker-entrypoint-initdb.d/ 
-      # para que se cargue automáticamente al iniciar.
+      # CAMBIO CLAVE: Usamos el volumen nombrado para que los datos sean inmortales
+      - fc_mysql_data:/var/lib/mysql
+      # Mantenemos el init para la primera vez
       - ./fc_database.sql:/docker-entrypoint-initdb.d/fc_database.sql
     ports:
       - "3306:3306"
@@ -27,23 +27,25 @@ services:
     depends_on:
       - db
     volumes:
-      # Apuntamos a la carpeta 'src' dentro del workspace de Jenkins
-      - C:/Users/Israel/Desktop/fastcontact/jenkins_home/workspace/FastContact-Pipeline/src:/var/www/html
+      # Asegúrate de que esta ruta sea correcta en tu máquina o usa rutas relativas como ./src
+      - ./src:/var/www/html
     ports:
       - "8080:80"
     command: >
       sh -c "docker-php-ext-install mysqli pdo pdo_mysql && apache2-foreground"
+
   jenkins:
     image: jenkins/jenkins:lts
     container_name: fc_jenkins
     privileged: true
     user: root
     ports:
-      - "8081:8080" # Entrarás por localhost:8081
+      - "8081:8080"
       - "50000:50000"
     volumes:
       - ./jenkins_home:/var/jenkins_home
-      - /var/run/docker.sock:/var/run/docker.sock 
-      # ELIMINA LA LÍNEA DE /usr/bin/docker:/usr/bin/docker
+      - /var/run/docker.sock:/var/run/docker.sock
+
+# Declaración de volúmenes oficiales
 volumes:
-  fc_mysql_data: # Esto crea el volumen oficial de Docker
+  fc_mysql_data:
