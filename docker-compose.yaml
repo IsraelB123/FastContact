@@ -45,6 +45,19 @@ services:
     volumes:
       - ./jenkins_home:/var/jenkins_home
       - /var/run/docker.sock:/var/run/docker.sock
+    
+    # Herramienta de Monitoreo de Contenedores
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:v0.47.0
+    container_name: fc_cadvisor
+    restart: always
+    ports:
+      - "8082:8080" # Entraremos por localhost:8082
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:rw
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
 
 # Declaración de volúmenes oficiales
 volumes:
