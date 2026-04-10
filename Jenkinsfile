@@ -27,14 +27,12 @@ pipeline {
                 sh '/usr/local/bin/docker run --rm -v "C:/Users/Israel/Desktop/fastcontact/jenkins_home/workspace/FastContact-Pipeline":/app php:8.0-cli php /app/test.php'
             }
         }
-        
+
         stage('Seguridad (DevSecOps)') {
             steps {
                 echo 'Ejecutando escaneo de vulnerabilidades con Trivy...'
-                
-                // Usamos un contenedor temporal de Trivy para escanear la imagen de PHP
-                // Filtramos solo para ver vulnerabilidades ALTAS y CRÍTICAS.
-                sh '/usr/local/bin/docker run --rm aquasec/trivy image --severity HIGH,CRITICAL php:8.0-apache'
+                // Usamos la versión segura anclada (0.69.3) para evitar caídas por la etiqueta 'latest'
+                sh '/usr/local/bin/docker run --rm aquasec/trivy:0.69.3 image --severity HIGH,CRITICAL php:8.0-apache'
             }
         }
         stage('Despliegue') {
