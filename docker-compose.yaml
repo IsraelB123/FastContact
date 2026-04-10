@@ -79,7 +79,7 @@ services:
     ports:
       - "3000:3000"
     environment:
-      - GF_SECURITY_ADMIN_PASSWORD=admin # Contraseña para entrar
+      - GF_SECURITY_ADMIN_PASSWORD=admin
     depends_on:
       - prometheus
 # Declaración de volúmenes oficiales
