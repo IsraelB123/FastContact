@@ -23,8 +23,7 @@ pipeline {
         stage('Test') {
             steps {
                 echo 'Ejecutando pruebas automáticas de PHP...'
-                // Actualizamos la ruta al nuevo formato de WSL apuntando a Documentos
-                sh '/usr/local/bin/docker run --rm -v /mnt/c/Users/Israel/Documents/fastcontact/jenkins_home/workspace/FastContact-Pipeline:/app php:8.0-cli php /app/test.php'
+                sh '/usr/local/bin/docker run --rm -v C:/Users/Israel/Documents/fastcontact/jenkins_home/workspace/FastContact-Pipeline:/app php:8.0-cli php /app/test.php'
             }
         }
 
