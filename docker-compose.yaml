@@ -28,7 +28,7 @@ services:
       - db
     volumes:
       # RUTA ABSOLUTA: Apunta directo al 'src' dentro del workspace de Jenkins
-      - C:/Users/Israel/Desktop/fastcontact/jenkins_home/workspace/FastContact-Pipeline/src:/var/www/html
+      - ./src:/var/www/html
     ports:
       - "8080:80"
     command: >
