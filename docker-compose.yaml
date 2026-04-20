@@ -1,0 +1,87 @@
+version: '3.8'
+
+services:
+  # Servidor de Base de Datos
+  db:
+    image: mariadb:10.4
+    container_name: fc_db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root_password
+      MYSQL_DATABASE: fc_database
+      MYSQL_USER: user_fastcontact
+      MYSQL_PASSWORD: password_seguro
+    volumes:
+      # CAMBIO CLAVE: Usamos el volumen nombrado para que los datos sean inmortales
+      - fc_mysql_data:/var/lib/mysql
+      # Mantenemos el init para la primera vez
+      - ./fc_database.sql:/docker-entrypoint-initdb.d/fc_database.sql
+    ports:
+      - "3306:3306"
+
+  # Servidor Web y PHP
+  app:
+    image: php:8.0-apache
+    container_name: fc_app
+    restart: always
+    depends_on:
+      - db
+    volumes:
+      # RUTA ABSOLUTA: Apunta directo al 'src' dentro del workspace de Jenkins
+      - C:/Users/Israel/Desktop/fastcontact/jenkins_home/workspace/FastContact-Pipeline/src:/var/www/html
+    ports:
+      - "8080:80"
+    command: >
+      sh -c "docker-php-ext-install mysqli pdo pdo_mysql && apache2-foreground"
+
+  jenkins:
+    image: jenkins/jenkins:lts
+    container_name: fc_jenkins
+    privileged: true
+    user: root
+    ports:
+      - "8081:8080"
+      - "50000:50000"
+    volumes:
+      - ./jenkins_home:/var/jenkins_home
+      - /var/run/docker.sock:/var/run/docker.sock
+    
+    # Herramienta de Monitoreo de Contenedores
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:v0.47.0
+    container_name: fc_cadvisor
+    restart: always
+    ports:
+      - "8082:8080"
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:rw
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+
+  # 2. La Base de Datos (Guarda las métricas)
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: fc_prometheus
+    restart: always
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    depends_on:
+      - cadvisor
+
+  # 3. La Pantalla Visual (Dibuja las gráficas)
+  grafana:
+    image: grafana/grafana:latest
+    container_name: fc_grafana
+    restart: always
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    depends_on:
+      - prometheus
+# Declaración de volúmenes oficiales
+volumes:
+  fc_mysql_data:
