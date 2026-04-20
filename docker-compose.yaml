@@ -27,8 +27,7 @@ services:
     depends_on:
       - db
     volumes:
-      # RUTA ABSOLUTA: Apunta directo al 'src' dentro del workspace de Jenkins
-      - ./src:/var/www/html
+      -  C:/Users/Israel/Documents/fastcontact/src:/var/www/html
     ports:
       - "8080:80"
     command: >
